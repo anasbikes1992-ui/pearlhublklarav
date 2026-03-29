@@ -35,4 +35,28 @@ return [
         ],
     ],
 
+    'payhere' => [
+        'merchant_id' => env('PAYHERE_MERCHANT_ID'),
+        'webhook_secret' => env('PAYHERE_WEBHOOK_SECRET'),
+    ],
+
+    'webxpay' => [
+        'merchant_id' => env('WEBXPAY_MERCHANT_ID'),
+        'webhook_secret' => env('WEBXPAY_WEBHOOK_SECRET'),
+    ],
+
+    'dialog_genie' => [
+        'merchant_id' => env('DIALOG_GENIE_MERCHANT_ID'),
+        'webhook_secret' => env('DIALOG_GENIE_WEBHOOK_SECRET'),
+    ],
+
+    'reverb' => [
+        'app_id' => env('REVERB_APP_ID'),
+        'app_key' => env('REVERB_APP_KEY'),
+        'app_secret' => env('REVERB_APP_SECRET'),
+        'host' => env('REVERB_HOST', '127.0.0.1'),
+        'port' => env('REVERB_PORT', 8080),
+        'scheme' => env('REVERB_SCHEME', 'http'),
+    ],
+
 ];

@@ -4,12 +4,12 @@ namespace App\Services\Payments;
 
 use Illuminate\Support\Str;
 
-class WebXPayGateway implements PaymentGatewayInterface
+class DialogGenieGateway implements PaymentGatewayInterface
 {
     public function createCheckout(array $payload): array
     {
         return [
-            'provider' => 'webxpay',
+            'provider' => 'dialog_genie',
             'status' => 'initiated',
             'reference' => $payload['reference'] ?? null,
             'meta' => $payload,
@@ -18,7 +18,7 @@ class WebXPayGateway implements PaymentGatewayInterface
 
     public function verifyWebhook(array $payload, array $context = []): array
     {
-        $secret = (string) config('services.webxpay.webhook_secret');
+        $secret = (string) config('services.dialog_genie.webhook_secret');
         $headerSignature = (string) ($context['signature'] ?? '');
         $rawBody = (string) ($context['raw_body'] ?? json_encode($payload));
 
@@ -26,10 +26,10 @@ class WebXPayGateway implements PaymentGatewayInterface
         $verified = $secret !== '' && $headerSignature !== '' && hash_equals($computed, $headerSignature);
 
         return [
-            'provider' => 'webxpay',
+            'provider' => 'dialog_genie',
             'verified' => $verified,
-            'event_id' => (string) ($payload['order_id'] ?? $payload['transaction_id'] ?? Str::uuid()),
-            'transaction_reference' => $payload['transaction_id'] ?? $payload['order_id'] ?? null,
+            'event_id' => (string) ($payload['event_id'] ?? $payload['txn_ref'] ?? Str::uuid()),
+            'transaction_reference' => $payload['txn_ref'] ?? $payload['event_id'] ?? null,
             'amount' => isset($payload['amount']) ? (float) $payload['amount'] : null,
             'currency' => $payload['currency'] ?? 'LKR',
             'status' => $payload['status'] ?? 'unknown',

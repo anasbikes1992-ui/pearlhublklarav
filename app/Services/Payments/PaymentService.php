@@ -26,9 +26,9 @@ class PaymentService
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
-    public function verifyWebhook(string $gateway, array $payload): array
+    public function verifyWebhook(string $gateway, array $payload, array $context = []): array
     {
-        return $this->resolve($gateway)->verifyWebhook($payload);
+        return $this->resolve($gateway)->verifyWebhook($payload, $context);
     }
 
     private function resolve(string $gateway): PaymentGatewayInterface

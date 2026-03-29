@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\ListingRepositoryInterface;
 use App\Repositories\Eloquent\ListingRepository;
+use App\Services\Payments\DialogGenieGateway;
 use App\Services\Payments\PayHereGateway;
 use App\Services\Payments\PaymentService;
 use App\Services\Payments\WebXPayGateway;
@@ -22,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
             return new PaymentService([
                 'payhere' => new PayHereGateway(),
                 'webxpay' => new WebXPayGateway(),
+                'dialog_genie' => new DialogGenieGateway(),
             ]);
         });
     }

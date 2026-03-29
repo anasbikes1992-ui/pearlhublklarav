@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\BookingStatusUpdated;
 use App\Models\Booking;
 use App\Models\Escrow;
 use App\Models\Listing;
@@ -55,6 +56,8 @@ class BookingService
             ],
         ]);
 
+        event(new BookingStatusUpdated($booking));
+
         return $booking->refresh();
     }
 
@@ -65,6 +68,8 @@ class BookingService
     {
         $booking->fill($payload);
         $booking->save();
+
+        event(new BookingStatusUpdated($booking));
 
         return $booking->refresh();
     }

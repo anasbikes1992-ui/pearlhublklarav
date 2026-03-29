@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\TaxiRideStatusUpdated;
 use App\Models\TaxiRide;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -21,11 +22,15 @@ class TaxiRideService
      */
     public function createRide(string $customerId, array $payload): TaxiRide
     {
-        return TaxiRide::query()->create([
+        $ride = TaxiRide::query()->create([
             'customer_id' => $customerId,
             'status' => 'searching',
             ...$payload,
         ]);
+
+        event(new TaxiRideStatusUpdated($ride));
+
+        return $ride;
     }
 
     /**
@@ -44,6 +49,8 @@ class TaxiRideService
         }
 
         $taxiRide->save();
+
+        event(new TaxiRideStatusUpdated($taxiRide));
 
         return $taxiRide->refresh();
     }

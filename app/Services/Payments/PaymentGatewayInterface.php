@@ -14,5 +14,5 @@ interface PaymentGatewayInterface
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
-    public function verifyWebhook(array $payload): array;
+    public function verifyWebhook(array $payload, array $context = []): array;
 }

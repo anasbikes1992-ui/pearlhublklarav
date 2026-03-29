@@ -10,6 +10,10 @@
 - Booking service with commission and escrow hold initialization.
 - Taxi ride APIs and lifecycle service.
 - Payment gateway abstraction with PayHere and WebXPay stubs.
+- Verified webhook intake for WebXPay and Dialog Genie with HMAC validation.
+- Idempotency key persistence and queued webhook processing with retry backoff.
+- Reverb private channels and broadcast events for booking/taxi updates.
+- Filament admin panel provider and resources for KYC, moderation, audits, escrow, and settlements.
 - Next.js 15 scaffold with App Router and ISR examples.
 - Flutter monorepo scaffold with customer/provider/admin apps.
 - Shared Dart package with shared_api_client and taxi_tracking_service.
