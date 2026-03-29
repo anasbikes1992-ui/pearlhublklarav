@@ -1,0 +1,14 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+  background: linear-gradient(180deg, #f5efe1 0%, #e6dcc5 100%);
+  color: #222222;
+}
+
+.page-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}

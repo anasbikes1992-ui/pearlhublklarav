@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Listing;
+use App\Models\ListingType;
 use App\Repositories\Contracts\ListingRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 
 class ListingService
 {
@@ -25,9 +27,20 @@ class ListingService
      */
     public function create(array $data): Listing
     {
+        $listingType = Arr::pull($data, 'listing_type');
         $data['status'] = $data['status'] ?? 'pending_verification';
+        $data['is_hidden'] = true;
 
-        return $this->listingRepository->create($data);
+        $listing = $this->listingRepository->create($data);
+
+        if (is_array($listingType)) {
+            ListingType::query()->create([
+                'listing_id' => $listing->id,
+                ...$listingType,
+            ]);
+        }
+
+        return $this->listingRepository->findOrFail($listing->id);
     }
 
     public function find(string $id): Listing
@@ -40,7 +53,15 @@ class ListingService
      */
     public function update(string $id, array $data): Listing
     {
+        $listingType = Arr::pull($data, 'listing_type');
         $listing = $this->listingRepository->findOrFail($id);
+
+        if (is_array($listingType)) {
+            $listing->listingType()->updateOrCreate(
+                ['listing_id' => $listing->id],
+                $listingType
+            );
+        }
 
         return $this->listingRepository->update($listing, $data);
     }

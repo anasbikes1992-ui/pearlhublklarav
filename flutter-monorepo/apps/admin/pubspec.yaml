@@ -1,0 +1,15 @@
+name: pearlhub_admin
+description: PearlHub admin command center app.
+publish_to: none
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  pearl_core:
+    path: ../../packages/pearl_core
+
+flutter:
+  uses-material-design: true

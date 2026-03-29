@@ -10,7 +10,7 @@ class ListingRepository implements ListingRepositoryInterface
 {
     public function all(array $filters = []): Collection
     {
-        $query = Listing::query();
+        $query = Listing::query()->with(['listingType', 'provider']);
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -34,7 +34,7 @@ class ListingRepository implements ListingRepositoryInterface
 
     public function findOrFail(string $id): Listing
     {
-        return Listing::query()->findOrFail($id);
+        return Listing::query()->with(['listingType', 'provider'])->findOrFail($id);
     }
 
     public function update(Listing $listing, array $attributes): Listing

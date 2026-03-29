@@ -20,6 +20,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
+            $table->boolean('is_hidden')->default(true);
             $table->timestamp('verified_at')->nullable();
             $table->foreignUuid('inspector_id')->nullable()->references('id')->on('users')->nullOnDelete();
             $table->timestamps();

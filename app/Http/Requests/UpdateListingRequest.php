@@ -25,6 +25,9 @@ class UpdateListingRequest extends FormRequest
             'metadata' => ['nullable', 'array'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'listing_type' => ['sometimes', 'array'],
+            'listing_type.type' => ['sometimes', 'string', 'in:property,stay,vehicle,event,sme'],
+            'listing_type.extra_json' => ['nullable', 'array'],
         ];
     }
 }

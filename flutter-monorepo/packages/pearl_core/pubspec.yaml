@@ -1,0 +1,11 @@
+name: pearl_core
+description: Shared core models, API client, and services for PearlHub apps.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  dio: ^5.7.0
+  web_socket_channel: ^3.0.1
