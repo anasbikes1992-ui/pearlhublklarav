@@ -28,6 +28,15 @@ class ListingController extends BaseApiController
         return $this->success($listings);
     }
 
+    public function myListings(Request $request): JsonResponse
+    {
+        $listings = $this->listingService->list([
+            'provider_id' => $request->user()->id,
+        ]);
+
+        return $this->success($listings);
+    }
+
     public function store(StoreListingRequest $request): JsonResponse
     {
         $listing = $this->listingService->create($request->validated());

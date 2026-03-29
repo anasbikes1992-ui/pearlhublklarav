@@ -21,3 +21,18 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/web-nextjs/node_modules
+/web-nextjs/.next
+/web-nextjs/.vercel
+/web-nextjs/.env.local
+
+# Flutter build artifacts
+flutter-monorepo/**/build/
+flutter-monorepo/**/.dart_tool/
+flutter-monorepo/**/.flutter-plugins
+flutter-monorepo/**/.flutter-plugins-dependencies
+flutter-monorepo/**/pubspec.lock
+flutter-monorepo/**/*.g.dart
+flutter-monorepo/**/android/.gradle/
+flutter-monorepo/**/ios/Pods/
+flutter-monorepo/**/ios/.symlinks/

@@ -18,6 +18,7 @@ class Listing extends Model
         'provider_id',
         'vertical',
         'title',
+        'slug',
         'description',
         'price',
         'currency',
@@ -67,6 +68,11 @@ class Listing extends Model
         return $this->hasMany(VerificationAudit::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -74,6 +80,7 @@ class Listing extends Model
     {
         return [
             'id' => $this->id,
+            'slug' => $this->slug,
             'title' => $this->title,
             'description' => $this->description,
             'vertical' => $this->vertical,

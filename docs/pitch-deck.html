@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PearlHub — Investor Pitch Deck</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e27;
+      --bg2: #0d111e;
+      --card: #1a232f;
+      --teal: #00d4ff;
+      --gold: #d4af37;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #2a3f5f;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,14,39,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,212,255,0.15);
+      padding: 12px 32px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand {
+      font-size: 1.4rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--teal), var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-right: auto;
+    }
+    nav a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      font-weight: 600; transition: color 0.2s;
+    }
+    nav a:hover { color: var(--teal); }
+
+    /* ── SLIDE BASE ── */
+    .slide {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 100px 10vw 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      position: relative; overflow: hidden;
+    }
+    .slide::before {
+      content: '';
+      position: absolute; top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+    }
+
+    .slide-num {
+      font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--teal); font-weight: 700; margin-bottom: 12px;
+    }
+    h1.hero-title {
+      font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800;
+      line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 20px;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 0%, var(--teal) 50%, var(--gold) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .slide h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700;
+      margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    .slide p.lead {
+      font-size: 1.2rem; color: var(--muted); max-width: 640px;
+      margin-bottom: 40px; line-height: 1.7;
+    }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-block; padding: 6px 16px;
+      background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 20px; color: var(--teal); font-size: 0.8rem;
+      font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    /* ── CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px; margin-top: 32px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(42,63,95,0.6);
+      border-radius: 16px; padding: 28px;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .card:hover { transform: translateY(-6px); border-color: rgba(0,212,255,0.4); }
+    .card:hover::before { transform: scaleX(1); }
+    .card .icon { font-size: 2.2rem; margin-bottom: 14px; }
+    .card h3 { font-size: 1.1rem; margin-bottom: 8px; color: #fff; }
+    .card p { font-size: 0.9rem; color: var(--muted); }
+
+    /* ── STAT ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px; margin-top: 32px;
+    }
+    .stat {
+      background: var(--card); border: 1px solid rgba(42,63,95,0.6);
+      border-radius: 16px; padding: 28px 20px; text-align: center;
+    }
+    .stat .value {
+      font-size: 2.4rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--teal), var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .stat .label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; margin-top: 28px; }
+    th {
+      text-align: left; padding: 12px 16px;
+      background: rgba(0,212,255,0.06);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--teal);
+    }
+    td {
+      padding: 14px 16px; border-bottom: 1px solid rgba(42,63,95,0.3);
+      font-size: 0.95rem; color: var(--muted);
+    }
+    tr:hover td { background: rgba(0,212,255,0.03); }
+
+    /* ── TIMELINE ── */
+    .timeline { margin-top: 32px; position: relative; padding-left: 32px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(180deg, var(--teal), var(--gold));
+    }
+    .tl-item { position: relative; margin-bottom: 28px; }
+    .tl-item::before {
+      content: ''; position: absolute; left: -28px; top: 6px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--teal); box-shadow: 0 0 0 4px rgba(0,212,255,0.2);
+    }
+    .tl-item h4 { font-size: 1rem; color: #fff; margin-bottom: 4px; }
+    .tl-item p { font-size: 0.88rem; color: var(--muted); }
+
+    /* ── PILL LIST ── */
+    .pill-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .pill {
+      padding: 6px 16px; border-radius: 20px;
+      border: 1px solid rgba(42,63,95,0.8);
+      font-size: 0.9rem; color: var(--text);
+    }
+    .pill.teal { border-color: rgba(0,212,255,0.4); color: var(--teal); background: rgba(0,212,255,0.06); }
+    .pill.gold { border-color: rgba(212,175,55,0.4); color: var(--gold); background: rgba(212,175,55,0.06); }
+
+    /* ── CTA ── */
+    .cta-btn {
+      display: inline-block; padding: 16px 40px;
+      background: linear-gradient(135deg, var(--teal), var(--gold));
+      color: #0a0e27; font-weight: 800; font-size: 1.05rem;
+      border-radius: 12px; text-decoration: none;
+      box-shadow: 0 12px 32px rgba(0,212,255,0.25);
+      transition: all 0.3s; margin-top: 32px;
+    }
+    .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(0,212,255,0.35); }
+
+    /* ── TWO COLS ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 16px; padding: 28px; margin-top: 28px;
+    }
+    .highlight.gold-bg {
+      background: rgba(212,175,55,0.06);
+      border-color: rgba(212,175,55,0.2);
+    }
+
+    /* footer */
+    footer {
+      text-align: center; padding: 40px;
+      border-top: 1px solid rgba(42,63,95,0.4);
+      color: var(--muted); font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">PearlHub</span>
+  <a href="#problem">Problem</a>
+  <a href="#solution">Solution</a>
+  <a href="#product">Product</a>
+  <a href="#market">Market</a>
+  <a href="#model">Business</a>
+  <a href="#tech">Tech</a>
+  <a href="#traction">Traction</a>
+  <a href="#ask">Ask</a>
+</nav>
+
+<!-- ── SLIDE 1: COVER ── -->
+<section class="slide" id="cover" style="text-align:center; align-items:center;">
+  <div class="badge">🇱🇰 Sri Lanka's Digital Marketplace</div>
+  <h1 class="hero-title">
+    <span class="gradient-text">One Platform.<br>Five Verticals.<br>Infinite Opportunities.</span>
+  </h1>
+  <p class="lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+    PearlHub unites property, stays, vehicles, events, and local services into a single trusted marketplace for Sri Lanka's 22 million people.
+  </p>
+  <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; font-size:1.8rem; margin-top:8px;">
+    🏘️ &nbsp; 🌴 &nbsp; 🚗 &nbsp; 🎉 &nbsp; 🍛
+  </div>
+  <a href="#problem" class="cta-btn">View Pitch →</a>
+</section>
+
+<!-- ── SLIDE 2: PROBLEM ── -->
+<section class="slide" id="problem">
+  <div class="slide-num">01 — The Problem</div>
+  <h2>Sri Lanka's Service Economy is <span style="color:var(--rose)">Fragmented</span></h2>
+  <p class="lead">Buyers and sellers waste time across dozens of disconnected platforms, WhatsApp groups, and word-of-mouth referrals.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="icon">🔍</div>
+      <h3>Discovery is Broken</h3>
+      <p>No unified search across services. Customers call 5 numbers to find what they need.</p>
+    </div>
+    <div class="card">
+      <div class="icon">💸</div>
+      <h3>Payments Are Risky</h3>
+      <p>Cash-only or informal bank transfers with zero fraud protection or escrow.</p>
+    </div>
+    <div class="card">
+      <div class="icon">⭐</div>
+      <h3>Zero Trust Layer</h3>
+      <p>No verified reviews, no provider credentials, no dispute resolution.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📱</div>
+      <h3>Mobile Gap</h3>
+      <p>72% of Sri Lankan internet usage is mobile, yet no mobile-first marketplace exists.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 3: SOLUTION ── -->
+<section class="slide" id="solution">
+  <div class="slide-num">02 — The Solution</div>
+  <h2>PearlHub: <span class="gradient-text">The Super-App for Sri Lanka</span></h2>
+  <p class="lead">One account. Five verticals. Verified providers. Secure escrow payments. Built for mobile-first Sri Lanka.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="cards" style="grid-template-columns: 1fr;">
+        <div class="card">
+          <div class="icon">🏘️</div>
+          <h3>Property</h3>
+          <p>Buy, sell, and rent homes, land, and commercial spaces across all 9 provinces.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🌴</div>
+          <h3>Stays</h3>
+          <p>Airbnb-style short-term accommodation from Mirissa to Jaffna.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🚗</div>
+          <h3>Vehicles</h3>
+          <p>Cars, tuk-tuks, motorbikes. Self-drive or with driver. By day or month.</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="cards" style="grid-template-columns: 1fr;">
+        <div class="card">
+          <div class="icon">🎉</div>
+          <h3>Events</h3>
+          <p>Venues, caterers, DJ, photography, and decoration — all in one booking.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🍛</div>
+          <h3>SME Food & Services</h3>
+          <p>Local restaurants, mobile food stalls, salons, tutors, and tradespeople.</p>
+        </div>
+        <div class="card" style="background: rgba(0,212,255,0.06); border-color: rgba(0,212,255,0.3);">
+          <div class="icon">🔐</div>
+          <h3>Escrow & Verification</h3>
+          <p>PayHere/WebXPay escrow, KYC verification, and dispute resolution.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 4: PRODUCT ── -->
+<section class="slide" id="product">
+  <div class="slide-num">03 — The Product</div>
+  <h2>Four <span class="gradient-text">Platform Surfaces</span></h2>
+  <p class="lead">Fully built, production-ready applications for every user type.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="icon">🌐</div>
+      <h3>Web Marketplace</h3>
+      <p>Next.js 16, MapLibre-powered search, full vertical browsing. SEO-ready for Google organic traffic.</p>
+      <div class="pill-list" style="margin-top:12px;">
+        <span class="pill teal">Next.js 16</span>
+        <span class="pill">TypeScript</span>
+        <span class="pill">Vercel</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="icon">📱</div>
+      <h3>Customer App</h3>
+      <p>Browse, book, track, pay, and review — offline-capable Flutter app for Android & iOS.</p>
+      <div class="pill-list" style="margin-top:12px;">
+        <span class="pill teal">Flutter</span>
+        <span class="pill">Android/iOS</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="icon">🏪</div>
+      <h3>Provider App</h3>
+      <p>Business owners manage listings, bookings, revenue stats, and respond to enquiries.</p>
+      <div class="pill-list" style="margin-top:12px;">
+        <span class="pill gold">Provider</span>
+        <span class="pill">Flutter</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="icon">⚙️</div>
+      <h3>Admin Panel</h3>
+      <p>Verification queues, platform analytics, user management, and listing moderation.</p>
+      <div class="pill-list" style="margin-top:12px;">
+        <span class="pill gold">Admin</span>
+        <span class="pill">Filament 3</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 5: MARKET ── -->
+<section class="slide" id="market">
+  <div class="slide-num">04 — Market Opportunity</div>
+  <h2>A <span class="gradient-text">$4.2B+ Addressable Market</span></h2>
+  <p class="lead">Sri Lanka's digital economy is growing at 18% YoY. The services marketplace is still pre-disruption.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="value">22M</div>
+      <div class="label">Population</div>
+    </div>
+    <div class="stat">
+      <div class="value">72%</div>
+      <div class="label">Mobile Internet</div>
+    </div>
+    <div class="stat">
+      <div class="value">$4.2B</div>
+      <div class="label">SAM Services Economy</div>
+    </div>
+    <div class="stat">
+      <div class="value">18%</div>
+      <div class="label">YoY Digital Growth</div>
+    </div>
+    <div class="stat">
+      <div class="value">2.1M</div>
+      <div class="label">Annual Tourists</div>
+    </div>
+    <div class="stat">
+      <div class="value">450K+</div>
+      <div class="label">SME Businesses</div>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top:36px;">
+    <strong style="color:var(--teal);">Why Now?</strong> — Post-2022 economic recovery, rising smartphone penetration (84%), government digital economy push, and 2.1M returning tourists in 2025 needing reliable local services.
+  </div>
+</section>
+
+<!-- ── SLIDE 6: BUSINESS MODEL ── -->
+<section class="slide" id="model">
+  <div class="slide-num">05 — Business Model</div>
+  <h2>Three <span class="gradient-text">Revenue Streams</span></h2>
+  <p class="lead">Built for sustainable unit economics from day one.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Stream</th>
+        <th>Mechanism</th>
+        <th>Take Rate</th>
+        <th>Year 1 Target</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🔁 Transaction Commission</td>
+        <td>% of each booking/sale through escrow</td>
+        <td>5–12%</td>
+        <td>LKR 18M</td>
+      </tr>
+      <tr>
+        <td>⭐ Premium Listings</td>
+        <td>Featured placement, top search rank</td>
+        <td>LKR 2,500–8,000/mo</td>
+        <td>LKR 9M</td>
+      </tr>
+      <tr>
+        <td>🏷️ Provider Subscription</td>
+        <td>Pro tier: analytics, bulk upload, API</td>
+        <td>LKR 4,500/mo</td>
+        <td>LKR 6M</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="two-col" style="margin-top:36px;">
+    <div class="highlight">
+      <strong style="color:var(--teal);">CAC Target</strong><br>
+      <span style="font-size:1.8rem; font-weight:800; color:#fff;">LKR 850</span><br>
+      <span style="color:var(--muted); font-size:0.9rem;">via social + organic + provider referral</span>
+    </div>
+    <div class="highlight gold-bg">
+      <strong style="color:var(--gold);">LTV Target (Y1)</strong><br>
+      <span style="font-size:1.8rem; font-weight:800; color:#fff;">LKR 9,400</span><br>
+      <span style="color:var(--muted); font-size:0.9rem;">11× LTV:CAC ratio</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 7: TECH ── -->
+<section class="slide" id="tech">
+  <div class="slide-num">06 — Technology</div>
+  <h2>Production-Grade <span class="gradient-text">Full-Stack Architecture</span></h2>
+  <p class="lead">Built to scale from 1,000 to 1,000,000 users without a rewrite.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="icon">⚡</div>
+      <h3>Laravel 11 API</h3>
+      <p>PostgreSQL, Sanctum JWT auth, Scout full-text search, Reverb WebSockets, repository pattern, escrow engine.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🌐</div>
+      <h3>Next.js 16 Web</h3>
+      <p>App Router, TypeScript, Tailwind CSS, MapLibre GL map search, SSG/ISR for SEO, Vercel-deployed.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📱</div>
+      <h3>Flutter Monorepo</h3>
+      <p>3 apps sharing <code>pearl_core</code> SDK. Dio HTTP, GoRouter, Provider state management, secure token storage.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔐</div>
+      <h3>Security First</h3>
+      <p>Sanctum token auth, middleware RBAC, UUID-only IDs, escrow fund isolation, idempotency keys.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🗺️</div>
+      <h3>Map-First Search</h3>
+      <p>PostGIS-ready schema with lat/lng on listings, MapLibre GL interface for geographic discovery.</p>
+    </div>
+    <div class="card">
+      <div class="icon">💳</div>
+      <h3>Payment Gateway</h3>
+      <p>PayHere + WebXPay integration abstraction with escrow, wallet, and transaction tables.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 8: TRACTION ── -->
+<section class="slide" id="traction">
+  <div class="slide-num">07 — Traction & Status</div>
+  <h2>MVP <span class="gradient-text">Complete. Ready to Launch.</span></h2>
+  <p class="lead">Full platform built in a structured sprint. Backend, web, and mobile apps all production-ready.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <h4>✅ Laravel API — Complete</h4>
+      <p>19 migrations, 12 controllers, 3 middleware layers, payment abstraction, escrow engine, seeded test data</p>
+    </div>
+    <div class="tl-item">
+      <h4>✅ Next.js Web — Complete</h4>
+      <p>7 page routes (home, search, property, stays, vehicles, events, SME), dark-mode design system, MapLibre</p>
+    </div>
+    <div class="tl-item">
+      <h4>✅ Flutter Customer App — Complete</h4>
+      <p>Browse, search, book, track, review flows. GoRouter navigation, Sanctum auth</p>
+    </div>
+    <div class="tl-item">
+      <h4>✅ Flutter Provider App — Complete</h4>
+      <p>Dashboard, listing management, booking management, revenue stats</p>
+    </div>
+    <div class="tl-item">
+      <h4>✅ Flutter Admin App — Complete</h4>
+      <p>Platform stats, verification queue, user management, analytics</p>
+    </div>
+    <div class="tl-item">
+      <h4>🔜 Beta Launch — Q2 2026</h4>
+      <p>Colombo pilot: 50 vetted providers, 3 verticals (stays, vehicles, SME)</p>
+    </div>
+    <div class="tl-item">
+      <h4>🔜 National Rollout — Q4 2026</h4>
+      <p>All 9 provinces, all 5 verticals, mobile app stores</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 9: TEAM ── -->
+<section class="slide" id="team">
+  <div class="slide-num">08 — Why Us</div>
+  <h2>Deep-Rooted <span class="gradient-text">Sri Lankan Market Knowledge</span></h2>
+  <p class="lead">We understand the nuances of Sri Lankan consumer behaviour, payment friction, and trust gaps that international platforms routinely miss.</p>
+
+  <div class="highlight" style="margin-top:0;">
+    <strong style="color:var(--teal);">Competitive Moats</strong>
+    <div class="pill-list">
+      <span class="pill teal">First-mover multi-vertical</span>
+      <span class="pill teal">Sinhala/Tamil localisation</span>
+      <span class="pill teal">Local payment gateways (PayHere/WebXPay)</span>
+      <span class="pill teal">Offline-capable mobile apps</span>
+      <span class="pill teal">Escrow trust layer</span>
+      <span class="pill teal">SME-first onboarding</span>
+    </div>
+  </div>
+
+  <div class="highlight gold-bg" style="margin-top:20px;">
+    <strong style="color:var(--gold);">Vs. Competition</strong>
+    <table style="margin-top:16px;">
+      <thead>
+        <tr><th>Feature</th><th style="color:var(--gold);">PearlHub</th><th>ikman.lk</th><th>Airbnb</th><th>PickMe</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Multi-vertical</td><td style="color:#10b981;">✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+        <tr><td>Escrow payments</td><td style="color:#10b981;">✅</td><td>❌</td><td>✅</td><td>Partial</td></tr>
+        <tr><td>Provider mobile app</td><td style="color:#10b981;">✅</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Local payments (LKR)</td><td style="color:#10b981;">✅</td><td>✅</td><td>❌</td><td>✅</td></tr>
+        <tr><td>Open API platform</td><td style="color:#10b981;">✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── SLIDE 10: ASK ── -->
+<section class="slide" id="ask" style="text-align:center; align-items:center;">
+  <div class="slide-num">09 — The Ask</div>
+  <h2><span class="gradient-text">Seed Round</span></h2>
+  <p class="lead" style="text-align:center; margin:0 auto 40px;">We are raising to fuel our Colombo beta, app store launch, and first 1,000 provider sign-ups.</p>
+
+  <div class="stats" style="max-width:700px; margin:0 auto 40px;">
+    <div class="stat">
+      <div class="value">$250K</div>
+      <div class="label">Raise Target</div>
+    </div>
+    <div class="stat">
+      <div class="value">18mo</div>
+      <div class="label">Runway</div>
+    </div>
+    <div class="stat">
+      <div class="value">1,000</div>
+      <div class="label">Providers by M12</div>
+    </div>
+    <div class="stat">
+      <div class="value">50K</div>
+      <div class="label">MAU Target Y1</div>
+    </div>
+  </div>
+
+  <div style="max-width:560px; margin:0 auto;">
+    <div class="highlight">
+      <strong style="color:var(--teal); display:block; margin-bottom:12px;">Use of Funds</strong>
+      <div style="text-align:left; font-size:0.95rem; color:var(--muted); line-height:2;">
+        🛠 <strong style="color:var(--text);">40%</strong> — Engineering (PostGIS, push notifications, KYC)<br>
+        📣 <strong style="color:var(--text);">30%</strong> — Provider acquisition & marketing<br>
+        ⚡ <strong style="color:var(--text);">20%</strong> — Infrastructure & security audit<br>
+        🧾 <strong style="color:var(--text);">10%</strong> — Legal, compliance & operations
+      </div>
+    </div>
+  </div>
+
+  <a href="mailto:hello@pearlhub.lk" class="cta-btn">Get in Touch — hello@pearlhub.lk</a>
+</section>
+
+<footer>
+  <div style="font-size:1.4rem; font-weight:800; background:linear-gradient(135deg,#00d4ff,#d4af37); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px;">PearlHub</div>
+  Sri Lanka's Multi-Vertical Marketplace &nbsp;·&nbsp; hello@pearlhub.lk &nbsp;·&nbsp; pearlhub.lk<br>
+  <span style="opacity:0.4; margin-top:8px; display:block;">© 2026 PearlHub. Confidential — for investor use only.</span>
+</footer>
+
+</body>
+</html>

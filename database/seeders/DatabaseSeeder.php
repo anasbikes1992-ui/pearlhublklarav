@@ -16,8 +16,26 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'full_name' => 'Admin User',
+            'email' => 'admin@pearlhub.lk',
+            'role' => 'admin',
+            'password' => bcrypt('secret123'),
         ]);
+
+        User::factory()->create([
+            'full_name' => 'Test Provider',
+            'email' => 'provider@pearlhub.lk',
+            'role' => 'provider',
+            'password' => bcrypt('secret123'),
+        ]);
+
+        User::factory()->create([
+            'full_name' => 'Test Customer',
+            'email' => 'customer@pearlhub.lk',
+            'role' => 'customer',
+            'password' => bcrypt('secret123'),
+        ]);
+
+        $this->call(ListingSeeder::class);
     }
 }

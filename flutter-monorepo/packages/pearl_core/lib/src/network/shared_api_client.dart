@@ -33,12 +33,26 @@ class SharedApiClient {
     _accessToken = token;
   }
 
+  /// Convenience alias for [setAccessToken].
+  void setToken(String token) => setAccessToken(token);
+
+  /// Clears the stored access token.
+  void clearToken() => setAccessToken(null);
+
   void setRefreshCallback(Future<String?> Function() callback) {
     _refreshCallback = callback;
   }
 
-  Future<Response<dynamic>> get(String path, {Map<String, dynamic>? query}) {
-    return _dio.get(path, queryParameters: query);
+  Future<Response<dynamic>> get(String path, {Map<String, dynamic>? queryParameters}) {
+    return _dio.get(path, queryParameters: queryParameters);
+  }
+
+  Future<Response<dynamic>> delete(String path) {
+    return _dio.delete(path);
+  }
+
+  Future<Response<dynamic>> patch(String path, {Object? data}) {
+    return _dio.patch(path, data: data);
   }
 
   Future<Response<dynamic>> post(String path, {Object? data}) {
