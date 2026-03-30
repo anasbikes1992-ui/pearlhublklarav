@@ -341,7 +341,7 @@ export class PaymentService {
   /**
    * Handle payment callback from provider
    */
-  async handlePaymentCallback(provider: string, data: any): Promise<PaymentResponse> {
+  async handlePaymentCallback(provider: string, data: Record<string, unknown>): Promise<PaymentResponse> {
     const response = await fetch(`${this.baseUrl}/payments/callback/${provider}`, {
       method: 'POST',
       headers: {
@@ -621,7 +621,7 @@ export class PaymentService {
   /**
    * Request refund for payment
    */
-  async requestRefund(transactionId: string, reason: string): Promise<any> {
+  async requestRefund(transactionId: string, reason: string): Promise<PaymentResponse> {
     const response = await fetch(`${this.baseUrl}/payments/${transactionId}/refund`, {
       method: 'POST',
       headers: {
@@ -636,4 +636,5 @@ export class PaymentService {
   }
 }
 
-export default new PaymentService();
+const paymentServiceInstance = new PaymentService();
+export default paymentServiceInstance;

@@ -16,11 +16,13 @@ class AuthController extends BaseApiController
             'full_name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:120', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'role' => ['required', 'string', 'in:admin,provider,customer,driver'],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
         $user = User::query()->create($validated);
+        $user->role = User::ROLE_CUSTOMER;
+        $user->save();
+
         $token = $user->createToken('mobile-auth')->plainTextToken;
 
         return $this->success([

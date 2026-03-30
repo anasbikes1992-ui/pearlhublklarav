@@ -34,6 +34,7 @@ export default function AdminPaymentDashboard() {
     if (activeTab === 'promo') {
       loadPromoCodes();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const loadPromoCodes = async () => {
@@ -68,7 +69,7 @@ export default function AdminPaymentDashboard() {
         expiryDate: '',
       });
       alert('Promo code generated successfully!');
-    } catch (error) {
+    } catch {
       alert('Failed to generate promo code');
     } finally {
       setLoading(false);
@@ -83,7 +84,7 @@ export default function AdminPaymentDashboard() {
         cashRequests.map(r => (r.id === requestId ? { ...r, status: 'approved' } : r))
       );
       alert('Payment approved');
-    } catch (error) {
+    } catch {
       alert('Failed to approve payment');
     } finally {
       setLoading(false);
@@ -98,7 +99,7 @@ export default function AdminPaymentDashboard() {
         cashRequests.map(r => (r.id === requestId ? { ...r, status: 'rejected' } : r))
       );
       alert('Payment rejected');
-    } catch (error) {
+    } catch {
       alert('Failed to reject payment');
     } finally {
       setLoading(false);
@@ -124,7 +125,7 @@ export default function AdminPaymentDashboard() {
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id as 'payments' | 'promo' | 'config')}
             className={`px-6 py-3 font-semibold transition-all duration-300 border-b-2 ${
               activeTab === tab.id
                 ? 'border-[#00d4ff] text-[#00d4ff]'
@@ -222,7 +223,7 @@ export default function AdminPaymentDashboard() {
                     <select
                       value={promoForm.discountType}
                       onChange={e =>
-                        setPromoForm({ ...promoForm, discountType: e.target.value as any })
+                        setPromoForm({ ...promoForm, discountType: e.target.value as 'percentage' | 'fixed' })
                       }
                       className="w-full bg-[#0a0e27] border border-[#1f2937] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00d4ff]"
                     >

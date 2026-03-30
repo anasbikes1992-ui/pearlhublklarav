@@ -27,12 +27,21 @@ Route::prefix('v1')->group(function (): void {
 
     // Must be before apiResource to avoid {listing} catching 'my'
     Route::get('/listings/my', [ListingController::class, 'myListings'])->middleware('auth:sanctum');
-    Route::apiResource('listings', ListingController::class);
+
+    // Public listing routes (index, show)
+    Route::get('/listings', [ListingController::class, 'index']);
+    Route::get('/listings/{listing}', [ListingController::class, 'show']);
     Route::get('/listings/{listing}/reviews', [ReviewController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/users/profile', [UserController::class, 'profile']);
         Route::put('/users/profile', [UserController::class, 'updateProfile']);
+
+        // Listing mutation routes (auth required)
+        Route::post('/listings', [ListingController::class, 'store']);
+        Route::put('/listings/{listing}', [ListingController::class, 'update']);
+        Route::patch('/listings/{listing}', [ListingController::class, 'update']);
+        Route::delete('/listings/{listing}', [ListingController::class, 'destroy']);
 
         Route::post('/listings/{listing}/reviews', [ReviewController::class, 'store']);
         Route::apiResource('bookings', BookingController::class)->except(['destroy']);

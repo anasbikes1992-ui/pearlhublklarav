@@ -23,6 +23,17 @@ class Booking extends Model
         'notes',
     ];
 
+    /**
+     * Fields that cannot be mass-assigned by user input.
+     * Only the service layer should set these via explicit assignment.
+     */
+    protected $guarded_from_user = [
+        'customer_id',
+        'total_amount',
+        'currency',
+        'payment_status',
+    ];
+
     protected function casts(): array
     {
         return [

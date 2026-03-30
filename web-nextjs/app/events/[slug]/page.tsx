@@ -4,14 +4,16 @@ import { getListingBySlug } from '../../../lib/api';
 
 export const revalidate = 300;
 
-type Props = { params: { slug: string } };
+type Props = { params: Promise<{ slug: string }> };
 
-export function generateMetadata({ params }: Props): Metadata {
-  return { title: `${params.slug.replace(/-/g, ' ')} — PearlHub Events` };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  return { title: `${slug.replace(/-/g, ' ')} — PearlHub Events` };
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const event = await getListingBySlug(params.slug, 'event');
+  const { slug } = await params;
+  const event = await getListingBySlug(slug, 'event');
   const price = new Intl.NumberFormat('en-LK', { maximumFractionDigits: 0 }).format(event.price);
 
   return (

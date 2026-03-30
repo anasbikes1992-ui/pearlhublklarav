@@ -4,14 +4,16 @@ import { getListingBySlug } from '../../../lib/api';
 
 export const revalidate = 300;
 
-type Props = { params: { slug: string } };
+type Props = { params: Promise<{ slug: string }> };
 
-export function generateMetadata({ params }: Props): Metadata {
-  return { title: `${params.slug.replace(/-/g, ' ')} — PearlHub Vehicles` };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  return { title: `${slug.replace(/-/g, ' ')} — PearlHub Vehicles` };
 }
 
 export default async function VehicleDetailPage({ params }: Props) {
-  const vehicle = await getListingBySlug(params.slug, 'vehicle');
+  const { slug } = await params;
+  const vehicle = await getListingBySlug(slug, 'vehicle');
   const price = new Intl.NumberFormat('en-LK', { maximumFractionDigits: 0 }).format(vehicle.price);
 
   return (

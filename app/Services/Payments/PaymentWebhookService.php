@@ -62,10 +62,17 @@ class PaymentWebhookService
                 return;
             }
 
+            $userId = (string) ($payload['user_id'] ?? '');
+            if ($userId === '' || $userId === '00000000-0000-0000-0000-000000000000') {
+                throw new RuntimeException('Webhook payload is missing a valid user_id.');
+            }
+
             $wallet = Wallet::query()->firstOrCreate(
-                ['user_id' => (string) ($payload['user_id'] ?? '00000000-0000-0000-0000-000000000000')],
+                ['user_id' => $userId],
                 ['balance' => 0, 'currency' => (string) ($payload['currency'] ?? 'LKR'), 'status' => 'active']
             );
+
+            $amount = (string) ($payload['amount'] ?? '0');
 
             Transaction::query()->updateOrCreate(
                 [
@@ -74,7 +81,7 @@ class PaymentWebhookService
                 ],
                 [
                     'wallet_id' => $wallet->id,
-                    'amount' => (float) ($payload['amount'] ?? 0),
+                    'amount' => $amount,
                     'currency' => (string) ($payload['currency'] ?? 'LKR'),
                     'status' => (string) ($payload['status'] ?? 'pending'),
                     'meta' => ['raw_payload' => $payload],

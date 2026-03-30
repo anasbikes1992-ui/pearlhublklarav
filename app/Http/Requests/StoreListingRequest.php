@@ -8,7 +8,7 @@ class StoreListingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user() !== null;
     }
 
     /**
@@ -17,7 +17,6 @@ class StoreListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'provider_id' => ['required', 'uuid', 'exists:users,id'],
             'vertical' => ['required', 'string', 'in:property,stay,vehicle,taxi,event,sme'],
             'title' => ['required', 'string', 'max:160'],
             'description' => ['nullable', 'string'],
@@ -31,5 +30,21 @@ class StoreListingRequest extends FormRequest
             'listing_type.type' => ['required', 'string', 'in:property,stay,vehicle,event,sme'],
             'listing_type.extra_json' => ['nullable', 'array'],
         ];
+    }
+
+    /**
+     * Automatically inject the authenticated user's ID as the provider.
+     *
+     * @return array<string, mixed>
+     */
+    public function validated($key = null, $default = null): mixed
+    {
+        $validated = parent::validated($key, $default);
+
+        if ($key === null) {
+            $validated['provider_id'] = $this->user()->id;
+        }
+
+        return $validated;
     }
 }

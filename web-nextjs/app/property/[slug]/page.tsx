@@ -3,8 +3,9 @@ import { getListingBySlug } from '../../../lib/api';
 
 export const revalidate = 300;
 
-export default async function PropertyDetailPage({ params }: { params: { slug: string } }) {
-  const listing = await getListingBySlug(params.slug, 'property');
+export default async function PropertyDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const listing = await getListingBySlug(slug, 'property');
 
   return (
     <main className="page-shell detail-page">

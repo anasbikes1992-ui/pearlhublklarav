@@ -134,7 +134,7 @@ export const sleep = (ms: number): Promise<void> => {
 /**
  * Debounce function
  */
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: Parameters<T>) => ReturnType<T>>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
@@ -148,7 +148,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 /**
  * Throttle function
  */
-export const throttle = <T extends (...args: any[]) => any>(
+export const throttle = <T extends (...args: Parameters<T>) => ReturnType<T>>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {
@@ -165,27 +165,30 @@ export const throttle = <T extends (...args: any[]) => any>(
 /**
  * Deep merge objects
  */
-export const deepMerge = <T extends Record<string, any>>(
+export const deepMerge = <T extends Record<string, unknown>>(
   target: T,
   source: Partial<T>
 ): T => {
-  const output = { ...target };
+  const output: Record<string, unknown> = { ...target };
   if (isObject(target) && isObject(source)) {
     Object.keys(source).forEach((key) => {
       if (isObject(source[key])) {
         if (!(key in target)) {
           Object.assign(output, { [key]: source[key] });
         } else {
-          output[key] = deepMerge(target[key], source[key]);
+          output[key] = deepMerge(
+            target[key] as Record<string, unknown>,
+            source[key] as Partial<Record<string, unknown>>
+          );
         }
       } else {
         Object.assign(output, { [key]: source[key] });
       }
     });
   }
-  return output;
+  return output as T;
 };
 
-const isObject = (item: any): item is Record<string, any> => {
-  return item && typeof item === 'object' && !Array.isArray(item);
+const isObject = (item: unknown): item is Record<string, unknown> => {
+  return item !== null && typeof item === 'object' && !Array.isArray(item);
 };

@@ -25,6 +25,7 @@ yarn-error.log
 /web-nextjs/.next
 /web-nextjs/.vercel
 /web-nextjs/.env.local
+/web-nextjs/tsconfig.tsbuildinfo
 
 # Flutter build artifacts
 flutter-monorepo/**/build/

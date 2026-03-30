@@ -3,12 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import { SL_PAYMENT_OPTIONS, PaymentService, PaymentOption } from '@/lib/payments';
 
+interface PaymentBreakdown {
+  subtotal: number;
+  fee: number;
+  feePercentage: number;
+  total: number;
+  requiresAdminApproval: boolean;
+  [key: string]: unknown;
+}
+
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   amount: number;
   vertical: string;
-  onSelectPayment: (method: string, breakdown: any) => void;
+  onSelectPayment: (method: string, breakdown: PaymentBreakdown) => void;
   showSubscriptionOption?: boolean;
 }
 
@@ -25,7 +34,7 @@ export default function PaymentModal({
   const [promoCode, setPromoCode] = useState('');
   const [promoError, setPromoError] = useState('');
   const [discount, setDiscount] = useState(0);
-  const [breakdowns, setBreakdowns] = useState<Record<string, any>>({});
+  const [breakdowns, setBreakdowns] = useState<Record<string, PaymentBreakdown>>({});
   const [loading, setLoading] = useState(false);
   const [wantSubscription, setWantSubscription] = useState(false);
   const [showPromoInput, setShowPromoInput] = useState(false);
@@ -43,7 +52,7 @@ export default function PaymentModal({
       setAvailableMethods(methods);
 
       // Calculate breakdowns for all methods
-      const newBreakdowns: Record<string, any> = {};
+      const newBreakdowns: Record<string, PaymentBreakdown> = {};
       methods.forEach(method => {
         const fee = (amount * method.fee) / 100;
         newBreakdowns[method.id] = {
@@ -77,7 +86,7 @@ export default function PaymentModal({
         setPromoError('Invalid or expired promo code');
         setDiscount(0);
       }
-    } catch (error) {
+    } catch {
       setPromoError('Failed to validate promo code');
     } finally {
       setLoading(false);

@@ -5,8 +5,9 @@ import { searchListings, type Vertical } from '../../lib/api';
 
 type SearchParams = { q?: string; vertical?: string };
 
-export function generateMetadata({ searchParams }: { searchParams: SearchParams }): Metadata {
-  const q = searchParams.q ?? '';
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
+  const resolvedParams = await searchParams;
+  const q = resolvedParams.q ?? '';
   return {
     title: q ? `"${q}" — PearlHub Search` : 'Search — PearlHub Pro',
     description: `Search across properties, stays, vehicles, events, and local businesses in Sri Lanka.`,
@@ -15,9 +16,10 @@ export function generateMetadata({ searchParams }: { searchParams: SearchParams 
 
 const VALID_VERTICALS: Vertical[] = ['property', 'stay', 'vehicle', 'event', 'sme'];
 
-export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
-  const q = (searchParams.q ?? '').trim();
-  const rawVertical = searchParams.vertical ?? '';
+export default async function SearchPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const resolvedParams = await searchParams;
+  const q = (resolvedParams.q ?? '').trim();
+  const rawVertical = resolvedParams.vertical ?? '';
   const vertical = VALID_VERTICALS.includes(rawVertical as Vertical) ? (rawVertical as Vertical) : undefined;
 
   if (!q) {
