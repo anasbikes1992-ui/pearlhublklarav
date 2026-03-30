@@ -72,7 +72,7 @@ class PaymentWebhookService
                 ['balance' => 0, 'currency' => (string) ($payload['currency'] ?? 'LKR'), 'status' => 'active']
             );
 
-            $amount = (string) ($payload['amount'] ?? '0');
+            $amount = $payload['amount'] ?? 0;
 
             Transaction::query()->updateOrCreate(
                 [
@@ -81,7 +81,7 @@ class PaymentWebhookService
                 ],
                 [
                     'wallet_id' => $wallet->id,
-                    'amount' => $amount,
+                    'amount' => is_numeric($amount) ? round((float) $amount, 2) : 0,
                     'currency' => (string) ($payload['currency'] ?? 'LKR'),
                     'status' => (string) ($payload['status'] ?? 'pending'),
                     'meta' => ['raw_payload' => $payload],

@@ -33,7 +33,7 @@ class StoreListingRequest extends FormRequest
     }
 
     /**
-     * Automatically inject the authenticated user's ID as the provider.
+     * Inject the authenticated user's ID as the provider.
      *
      * @return array<string, mixed>
      */
@@ -41,7 +41,7 @@ class StoreListingRequest extends FormRequest
     {
         $validated = parent::validated($key, $default);
 
-        if ($key === null) {
+        if (is_array($validated)) {
             $validated['provider_id'] = $this->user()->id;
         }
 
