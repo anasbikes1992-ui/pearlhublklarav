@@ -5,9 +5,10 @@ const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL
 
 // Demo users — active when the real backend is unreachable (e.g. Vercel preview without a deployed API)
 const DEMO_USERS: Record<string, { email: string; password: string; name: string; role: string }> = {
-  'admin@pearlhub.lk':    { email: 'admin@pearlhub.lk',    password: 'secret123', name: 'Admin User',    role: 'admin'    },
-  'provider@pearlhub.lk': { email: 'provider@pearlhub.lk', password: 'secret123', name: 'Test Provider', role: 'provider' },
-  'customer@pearlhub.lk': { email: 'customer@pearlhub.lk', password: 'secret123', name: 'Test Customer', role: 'customer' },
+  'anasbikes1992@gmail.com': { email: 'anasbikes1992@gmail.com', password: '123456',    name: 'Anas Admin',   role: 'admin'    },
+  'admin@pearlhub.lk':       { email: 'admin@pearlhub.lk',      password: 'secret123', name: 'Admin User',   role: 'admin'    },
+  'provider@pearlhub.lk':    { email: 'provider@pearlhub.lk',   password: 'secret123', name: 'Test Provider',role: 'provider' },
+  'customer@pearlhub.lk':    { email: 'customer@pearlhub.lk',   password: 'secret123', name: 'Test Customer',role: 'customer' },
 };
 
 export async function POST(req: NextRequest) {

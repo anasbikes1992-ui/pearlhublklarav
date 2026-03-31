@@ -20,11 +20,14 @@ export async function GET(req: Request) {
     const role = parts[1];
     const emailB64 = parts.slice(2).join('_');
     const email = Buffer.from(emailB64, 'base64').toString('utf8');
+    const nameMap: Record<string, string> = {
+      'anasbikes1992@gmail.com': 'Anas Admin',
+    };
     if (DEMO_ROLES[role] && email.includes('@')) {
       const user = {
         id: `demo-${role}`,
-        full_name: `${role.charAt(0).toUpperCase()}${role.slice(1)} User`,
-        name:      `${role.charAt(0).toUpperCase()}${role.slice(1)} User`,
+        full_name: nameMap[email] ?? `${role.charAt(0).toUpperCase()}${role.slice(1)} User`,
+        name:      nameMap[email] ?? `${role.charAt(0).toUpperCase()}${role.slice(1)} User`,
         email,
         role,
       };
