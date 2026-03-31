@@ -1733,6 +1733,7 @@ footer a:hover {
 .page-intro--event .eyebrow { color: var(--accent-rose); }
 .page-intro--taxi .eyebrow { color: var(--accent-purple); }
 .page-intro--sme .eyebrow { color: var(--accent-gold); }
+.page-intro--experience .eyebrow { color: var(--accent-teal); }
 .page-intro--search .eyebrow { color: var(--accent-teal); }
 
 /* ============= FILTER ROW ============= */

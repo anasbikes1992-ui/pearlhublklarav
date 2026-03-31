@@ -11,6 +11,7 @@ const verticals = [
   { href: '/stays', label: 'Stays' },
   { href: '/vehicles', label: 'Vehicles' },
   { href: '/events', label: 'Events' },
+  { href: '/experiences', label: 'Experiences' },
   { href: '/sme', label: 'SME' },
   { href: '/taxi', label: 'Taxi' },
 ];

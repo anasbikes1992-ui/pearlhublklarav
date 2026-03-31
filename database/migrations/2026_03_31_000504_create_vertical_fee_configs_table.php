@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('vertical_fee_configs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('vertical'); // property, stay, vehicle, event, sme
+            $table->string('vertical'); // property, stay, vehicle, event, sme, experience
             $table->decimal('listing_fee', 12, 2)->default(0);
             $table->decimal('commission_rate', 5, 4)->default(0.08); // e.g. 0.02
             $table->decimal('vat_rate', 5, 4)->default(0); // e.g. 0.15

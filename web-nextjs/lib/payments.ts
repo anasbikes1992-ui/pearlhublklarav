@@ -66,7 +66,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Dialog Axiata',
     icon: '💳',
     description: 'Mobile money service via Dialog network',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 100,
     maxAmount: 1000000,
     fee: 2.5,
@@ -79,7 +79,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Dialog Axiata',
     icon: '📱',
     description: 'Digital payments through Dialog app',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 100,
     maxAmount: 500000,
     fee: 2.0,
@@ -92,7 +92,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Sampath Bank',
     icon: '🏦',
     description: 'Direct bank transfer via Sampath SMARTPAY',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 500,
     maxAmount: 5000000,
     fee: 1.5,
@@ -118,7 +118,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Idea Corp',
     icon: '📲',
     description: 'Multi-operator mobile payment platform',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 100,
     maxAmount: 999999,
     fee: 2.75,
@@ -131,7 +131,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Mobitel',
     icon: '💵',
     description: 'Mobitel mobile money wallet',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 50,
     maxAmount: 500000,
     fee: 2.5,
@@ -144,7 +144,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Hutchison',
     icon: '📞',
     description: 'Hutch mobile money service',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 50,
     maxAmount: 500000,
     fee: 2.5,
@@ -157,7 +157,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Multiple Banks',
     icon: '🏧',
     description: 'Direct bank transfer to PearlHub account',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 500,
     maxAmount: 10000000,
     fee: 0,
@@ -185,7 +185,7 @@ export const SL_PAYMENT_OPTIONS: PaymentOption[] = [
     provider: 'Global Card Networks',
     icon: '💳',
     description: 'International card payments (Visa/MasterCard)',
-    supportedTypes: ['stay', 'property', 'vehicle', 'event'],
+    supportedTypes: ['stay', 'property', 'vehicle', 'event', 'experience'],
     minAmount: 100,
     maxAmount: 5000000,
     fee: 3.5,
@@ -387,6 +387,23 @@ export class PaymentService {
       body: JSON.stringify({ reason }),
     });
     if (!response.ok) throw new Error('Refund request failed');
+    return response.json();
+  }
+
+  // ========== ADMIN ==========
+
+  async approvePaymentRequest(requestId: string, approved: boolean, reason?: string): Promise<void> {
+    const action = approved ? 'approve' : 'reject';
+    const response = await this.authedFetch(`/cash/${requestId}/${action}`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+    if (!response.ok) throw new Error(`Failed to ${action} payment request`);
+  }
+
+  async getCashPaymentRequests(): Promise<Array<{ id: string; bookingId: string; amount: number; status: string; createdAt: string; customerName: string }>> {
+    const response = await this.authedFetch('/cash/requests');
+    if (!response.ok) throw new Error('Failed to fetch cash payment requests');
     return response.json();
   }
 }

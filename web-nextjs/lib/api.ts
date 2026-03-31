@@ -1,7 +1,7 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
 export const API_BASE = BASE_URL;
 
-export type Vertical = 'property' | 'stay' | 'vehicle' | 'event' | 'sme';
+export type Vertical = 'property' | 'stay' | 'vehicle' | 'event' | 'sme' | 'experience' | 'taxi';
 
 export type ListingItem = {
   id: string;
@@ -272,6 +272,55 @@ const fallbackListings: ListingItem[] = [
     rating: 4.8,
     latitude: 6.9271,
     longitude: 79.8612
+  },
+  // Experiences
+  {
+    id: 'experience-whale-watch-mirissa',
+    slug: 'mirissa-blue-whale-watch',
+    title: 'Mirissa Blue Whale Watching',
+    description: 'Join a certified marine biologist-led sunrise trip to see blue whales and spinner dolphins. Fastest departure in Mirissa, smallest group size.',
+    location: 'Mirissa',
+    price: 7500,
+    currency: 'LKR',
+    vertical: 'experience',
+    category: 'Whale watching',
+    badge: 'Pearl Signature',
+    accent: 'sapphire',
+    rating: 4.9,
+    latitude: 5.9486,
+    longitude: 80.4594
+  },
+  {
+    id: 'experience-yala-safari',
+    slug: 'yala-national-park-safari',
+    title: 'Yala National Park Safari',
+    description: 'Full-day private jeep safari in Sri Lanka\'s premier wildlife reserve. Leopards, elephants, and crocs — with a gourmet picnic lunch.',
+    location: 'Yala',
+    price: 18500,
+    currency: 'LKR',
+    vertical: 'experience',
+    category: 'Safari',
+    badge: 'Fully licensed',
+    accent: 'amber',
+    rating: 4.8,
+    latitude: 6.3728,
+    longitude: 81.5181
+  },
+  {
+    id: 'experience-arugam-surf',
+    slug: 'arugam-bay-surf-school',
+    title: 'Arugam Bay Surf School',
+    description: 'Two-hour beginner lesson or advanced session at one of Asia\'s top-10 surf breaks. ISA-certified instructor, all boards included.',
+    location: 'Arugam Bay',
+    price: 5500,
+    currency: 'LKR',
+    vertical: 'experience',
+    category: 'Surf & water sports',
+    badge: 'ISA certified',
+    accent: 'emerald',
+    rating: 4.7,
+    latitude: 6.8395,
+    longitude: 81.8380
   }
 ];
 
@@ -287,6 +336,8 @@ const ACCENT_BY_VERTICAL: Record<string, ListingItem['accent']> = {
   vehicle: 'amber',
   event: 'rose',
   sme: 'gold',
+  experience: 'sapphire',
+  taxi: 'amber',
 };
 
 type ApiListing = {
@@ -304,7 +355,7 @@ type ApiListing = {
 const normalizeListing = (item: ApiListing): ListingItem => {
   const metadata = item.metadata ?? {};
   const rawVertical = item.vertical ?? 'property';
-  const vertical: Vertical = (['property', 'stay', 'vehicle', 'event', 'sme'] as Vertical[]).includes(rawVertical as Vertical)
+  const vertical: Vertical = (['property', 'stay', 'vehicle', 'event', 'sme', 'experience', 'taxi'] as Vertical[]).includes(rawVertical as Vertical)
     ? (rawVertical as Vertical)
     : 'property';
   const location = typeof metadata.location === 'string' ? metadata.location : 'Sri Lanka';

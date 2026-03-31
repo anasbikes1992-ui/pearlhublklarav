@@ -10,6 +10,7 @@ const footerColumns = [
       { href: '/stays', label: 'Stays' },
       { href: '/vehicles', label: 'Vehicles' },
       { href: '/events', label: 'Events' },
+      { href: '/experiences', label: 'Experiences & Tours' },
       { href: '/sme', label: 'Local Businesses' },
       { href: '/taxi', label: 'Pearl Taxi' }
     ]
@@ -53,8 +54,8 @@ export default function SiteFooter() {
             <span className="market-footer__brand-name">Pearl Hub Sri Lanka</span>
           </div>
           <p className="market-footer__tagline">
-            Sri Lanka&apos;s premier multi-vertical marketplace. Properties, stays,
-            vehicles, events, taxi, and local SMEs in one premium ecosystem.
+            Sri Lanka&apos;s premier multi-vertical marketplace. Properties, stays, vehicles,
+            events, experiences, taxi, and local SMEs in one premium ecosystem.
           </p>
           <div className="market-footer__payments">
             <p>Accepted payments</p>
