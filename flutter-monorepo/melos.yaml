@@ -1,0 +1,10 @@
+name: pearlhub_flutter
+packages:
+  - apps/**
+  - packages/**
+
+scripts:
+  bootstrap:
+    run: melos bootstrap
+  analyze:
+    run: melos exec -- flutter analyze

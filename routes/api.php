@@ -1,0 +1,78 @@
+<?php
+
+use App\Http\Controllers\Api\V1\AdminController;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BookingController;
+use App\Http\Controllers\Api\V1\CashbackController;
+use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\ListingController;
+use App\Http\Controllers\Api\V1\PaymentWebhookController;
+use App\Http\Controllers\Api\V1\PromoCodeController;
+use App\Http\Controllers\Api\V1\PropertyController;
+use App\Http\Controllers\Api\V1\ReviewController;
+use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\TaxiRideController;
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\VerificationAuditController;
+use App\Http\Controllers\Api\V1\WalletController;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('v1')->group(function (): void {
+    Route::get('/health', HealthController::class);
+
+    Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:auth');
+    Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+    Route::post('/payments/webhooks/webxpay', [PaymentWebhookController::class, 'webxpay']);
+    Route::post('/payments/webhooks/dialog-genie', [PaymentWebhookController::class, 'dialogGenie']);
+
+    Route::get('/search', SearchController::class);
+
+    // Public promo code validation
+    Route::post('/promo-codes/validate', [PromoCodeController::class, 'validate']);
+
+    // Public fee calculator
+    Route::post('/fees/calculate', [PropertyController::class, 'calculateFees']);
+
+    // Must be before apiResource to avoid {listing} catching 'my'
+    Route::get('/listings/my', [ListingController::class, 'myListings'])->middleware('auth:sanctum');
+    Route::apiResource('listings', ListingController::class)->only(['index', 'show']);
+    Route::apiResource('listings', ListingController::class)->except(['index', 'show'])->middleware('auth:sanctum');
+    Route::get('/listings/{listing}/reviews', [ReviewController::class, 'index']);
+
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::get('/users/profile', [UserController::class, 'profile']);
+        Route::put('/users/profile', [UserController::class, 'updateProfile']);
+
+        Route::post('/listings/{listing}/reviews', [ReviewController::class, 'store']);
+        Route::apiResource('bookings', BookingController::class)->except(['destroy']);
+        Route::apiResource('taxi-rides', TaxiRideController::class)->except(['destroy']);
+        Route::post('/listings/{listing}/verify', [VerificationAuditController::class, 'store']);
+
+        // Property-specific routes (owner + broker flows)
+        Route::post('/property/owner-listing', [PropertyController::class, 'createOwnerListing']);
+        Route::post('/property/broker-listing', [PropertyController::class, 'createBrokerListing']);
+
+        // Promo code management
+        Route::get('/promo-codes', [PromoCodeController::class, 'index']);
+        Route::post('/promo-codes', [PromoCodeController::class, 'generate']);
+        Route::post('/promo-codes/redeem', [PromoCodeController::class, 'redeem']);
+
+        // Cashback management
+        Route::get('/cashback', [CashbackController::class, 'index']);
+        Route::post('/cashback/{cashbackRecord}/confirm', [CashbackController::class, 'confirm']);
+
+        // Wallet
+        Route::get('/wallet/balance', [WalletController::class, 'balance']);
+        Route::get('/wallet/transactions', [WalletController::class, 'transactions']);
+
+        // Admin-only routes
+        Route::prefix('admin')->middleware('admin')->group(function (): void {
+            Route::get('/stats', [AdminController::class, 'stats']);
+            Route::get('/users', [AdminController::class, 'users']);
+            Route::put('/users/{userId}', [AdminController::class, 'updateUser']);
+            Route::post('/cashback/{cashbackRecord}/credit', [CashbackController::class, 'credit']);
+        });
+    });
+});
