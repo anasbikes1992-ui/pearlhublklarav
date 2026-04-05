@@ -28,10 +28,24 @@ class User extends Authenticatable
         'full_name',
         'email',
         'phone',
-        'role',
         'is_active',
         'password',
     ];
+
+    /**
+     * Set the user's role safely. Only use in admin contexts.
+     */
+    public function setRole(string $role): void
+    {
+        $allowedRoles = [self::ROLE_ADMIN, self::ROLE_PROVIDER, self::ROLE_CUSTOMER, self::ROLE_DRIVER];
+        
+        if (!in_array($role, $allowedRoles, true)) {
+            throw new \InvalidArgumentException("Invalid role: {$role}");
+        }
+        
+        $this->role = $role;
+        $this->save();
+    }
 
     /**
      * The attributes that should be hidden for serialization.

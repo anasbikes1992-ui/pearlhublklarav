@@ -42,6 +42,21 @@ return Application::configure(basePath: dirname(__DIR__))
             return Limit::perMinute(10)->by($request->ip());
         });
 
+        // Public search endpoints can be called anonymously, but should be throttled.
+        RateLimiter::for('search', function (Request $request) {
+            return Limit::perMinute(30)->by($request->user()?->id ?? $request->ip());
+        });
+
+        // Promo validation is abuse-prone and should have a stricter budget.
+        RateLimiter::for('promo', function (Request $request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?? $request->ip());
+        });
+
+        // Fee calculation can be chatty from UI sliders, but still bounded.
+        RateLimiter::for('fees', function (Request $request) {
+            return Limit::perMinute(20)->by($request->user()?->id ?? $request->ip());
+        });
+
         // General API rate limit: 120 req/min per user or IP.
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(120)->by($request->user()?->id ?? $request->ip());

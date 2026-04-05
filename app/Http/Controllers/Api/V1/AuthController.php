@@ -23,9 +23,10 @@ class AuthController extends BaseApiController
             // Role is always 'customer' on self-registration — never trust client input.
         ]);
 
-        $validated['role'] = User::ROLE_CUSTOMER;
-
-        $user = User::query()->create($validated);
+        $user = new User();
+        $user->fill($validated);
+        $user->role = User::ROLE_CUSTOMER;
+        $user->save();
         try {
             $token = $this->issueAccessToken($user);
         } catch (Throwable) {

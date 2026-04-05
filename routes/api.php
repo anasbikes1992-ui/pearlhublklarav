@@ -25,8 +25,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function (): void {
     Route::get('/health', HealthController::class);
 
-    Route::post('/auth/register', [AuthController::class, 'register']);
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:auth');
     Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     Route::post('/payments/webhooks/webxpay', [PaymentWebhookController::class, 'webxpay']);
@@ -34,14 +34,14 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/payments/webhooks/koko-pay', [PaymentWebhookController::class, 'kokoPay']);
     Route::post('/payments/webhooks/mint-pay', [PaymentWebhookController::class, 'mintPay']);
 
-    Route::get('/search', SearchController::class);
-    Route::post('/concierge/chat', [ConciergeController::class, 'chat'])->middleware('throttle:api');
+    Route::get('/search', SearchController::class)->middleware('throttle:search,60,1');
+    Route::post('/concierge/chat', [ConciergeController::class, 'chat'])->middleware('throttle:concierge,20,1');
 
     // Public promo code validation
-    Route::post('/promo-codes/validate', [PromoCodeController::class, 'validate']);
+    Route::post('/promo-codes/validate', [PromoCodeController::class, 'validate'])->middleware('throttle:promo,10,1');
 
     // Public fee calculator
-    Route::post('/fees/calculate', [PropertyController::class, 'calculateFees']);
+    Route::post('/fees/calculate', [PropertyController::class, 'calculateFees'])->middleware('throttle:fees,30,1');
 
     // Must be before apiResource to avoid {listing} catching 'my'
     Route::get('/listings/my', [ListingController::class, 'myListings'])->middleware('auth:sanctum');
