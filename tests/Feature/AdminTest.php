@@ -163,4 +163,21 @@ class AdminTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    public function test_admin_user_list_returns_expected_fields(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/v1/admin/users');
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                'data' => [
+                    ['id', 'full_name', 'email', 'role', 'created_at'],
+                ],
+            ],
+        ]);
+    }
 }
