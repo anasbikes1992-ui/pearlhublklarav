@@ -23,7 +23,6 @@ cmds = [
 [phases.build]
 cmds = [
   "npm run build",
-  "php artisan optimize",
 ]
 
 [start]
