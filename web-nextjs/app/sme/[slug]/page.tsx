@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getListingBySlug } from '../../../lib/api';
+import SmeProductGrid from '../../../components/sme-product-grid';
+import VoiceChatRecorder from '../../../components/voice-chat-recorder';
 
 export const revalidate = 300;
 
@@ -13,7 +15,9 @@ export function generateMetadata({ params }: Props): Metadata {
 
 export default async function SMEDetailPage({ params }: Props) {
   const business = await getListingBySlug(params.slug, 'sme');
+  const providerId = (business as { provider_id?: string }).provider_id;
   const price = new Intl.NumberFormat('en-LK', { maximumFractionDigits: 0 }).format(business.price);
+  const similarLinks = ['/sme', '/search?q=artisan&vertical=sme', '/search?q=local&vertical=sme'];
 
   return (
     <main className="page-shell detail-page">
@@ -37,16 +41,37 @@ export default async function SMEDetailPage({ params }: Props) {
           <ul className="detail-list">
             <li>Pearl-verified local business with reviewed credentials</li>
             <li>Nationwide shipping or local delivery available</li>
-            <li>Secure payment with PearlHub escrow protection</li>
-            <li>Direct messaging with the business owner</li>
+            <li>Direct messaging with the business owner before purchase</li>
+            <li>Variant support for size, color, and custom bundles</li>
           </ul>
 
-          <h2>Order &amp; delivery</h2>
+          <h2>Finder flow (no platform booking)</h2>
           <ul className="detail-list">
-            <li>Order confirmation sent via PearlHub app and email</li>
-            <li>3% platform commission included in displayed price</li>
-            <li>Dispute resolution via Pearl concierge team</li>
+            <li>Browse catalog and compare variants instantly</li>
+            <li>Send text or voice inquiry directly to provider chat</li>
+            <li>Complete payment off-platform with provider preferred method</li>
           </ul>
+
+          <SmeProductGrid listing={business} />
+
+          <section className="trust-badges">
+            <h2>Trust badges</h2>
+            <div className="trust-badges__row">
+              <span>Verified Seller</span>
+              <span>Tax Profile Validated</span>
+              <span>Fast Reply</span>
+              <span>Top Rated</span>
+            </div>
+          </section>
+
+          <section className="similar-listings">
+            <h2>Similar listings</h2>
+            <div className="similar-listings__row">
+              {similarLinks.map((href) => (
+                <Link key={href} href={href} className="btn btn-secondary">Explore {href}</Link>
+              ))}
+            </div>
+          </section>
         </article>
 
         <aside className="detail-sidebar">
@@ -57,9 +82,20 @@ export default async function SMEDetailPage({ params }: Props) {
           <Link className="btn btn-primary btn-full" href="/auth/login">
             Contact business
           </Link>
+          <button className="btn btn-secondary btn-full" type="button">
+            Add to favorites
+          </button>
+          <VoiceChatRecorder listingId={business.id} receiverId={providerId} />
           <Link className="btn btn-secondary btn-full" href="/sme">
             Browse local businesses
           </Link>
+
+          <div className="provider-earnings-card">
+            <h3>Provider earnings snapshot</h3>
+            <p>Monthly self-reported sales: LKR 1,250,000</p>
+            <p>Plan: Gold</p>
+            <p>Products active: 142 / 500</p>
+          </div>
         </aside>
       </div>
     </main>

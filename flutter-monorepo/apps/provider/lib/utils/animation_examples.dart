@@ -253,9 +253,7 @@ class ProviderAnimationExamples {
               shape: BoxShape.circle,
               color: isActive ? Colors.green : Colors.grey,
             ),
-          ).animate().pulse(
-                duration: Duration(milliseconds: 800),
-              ),
+          ),
           SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

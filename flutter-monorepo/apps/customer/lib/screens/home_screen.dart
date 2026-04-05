@@ -42,6 +42,16 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         title: const Text('PearlHub'),
         actions: [
+          IconButton(
+            onPressed: () => context.push('/verticals'),
+            icon: const Icon(Icons.dashboard_customize_rounded, color: Color(0xFFd4af37)),
+            tooltip: 'Verticals',
+          ),
+          IconButton(
+            onPressed: () => context.push('/concierge'),
+            icon: const Icon(Icons.auto_awesome_rounded, color: Color(0xFF00d4ff)),
+            tooltip: 'AI Concierge',
+          ),
           if (authService.isAuthenticated)
             Padding(
               padding: const EdgeInsets.all(16),

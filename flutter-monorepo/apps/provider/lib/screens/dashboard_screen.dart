@@ -149,6 +149,26 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                           accent: true,
                           onTap: () => context.push('/listings/create'),
                         ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _ActionButton(
+                                label: 'SME Plans',
+                                icon: Icons.workspace_premium_rounded,
+                                onTap: () => context.push('/sme/subscriptions'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _ActionButton(
+                                label: 'Sales Report',
+                                icon: Icons.bar_chart_rounded,
+                                onTap: () => context.push('/sme/sales-report'),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

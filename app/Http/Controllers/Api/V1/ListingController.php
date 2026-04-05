@@ -56,13 +56,21 @@ class ListingController extends BaseApiController
 
     public function update(UpdateListingRequest $request, Listing $listing): JsonResponse
     {
+        if ($listing->provider_id !== $request->user()->id && $request->user()->role !== 'admin') {
+            return $this->error('Forbidden', [], 403);
+        }
+
         $updated = $this->listingService->update($listing->id, $request->validated());
 
         return $this->success($updated, 'Listing updated');
     }
 
-    public function destroy(Listing $listing): JsonResponse
+    public function destroy(Request $request, Listing $listing): JsonResponse
     {
+        if ($listing->provider_id !== $request->user()->id && $request->user()->role !== 'admin') {
+            return $this->error('Forbidden', [], 403);
+        }
+
         $this->listingService->delete($listing->id);
 
         return $this->success(null, 'Listing deleted');

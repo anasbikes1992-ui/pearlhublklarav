@@ -35,19 +35,55 @@ return [
         ],
     ],
 
-    'payhere' => [
-        'merchant_id' => env('PAYHERE_MERCHANT_ID'),
-        'webhook_secret' => env('PAYHERE_WEBHOOK_SECRET'),
-    ],
-
     'webxpay' => [
         'merchant_id' => env('WEBXPAY_MERCHANT_ID'),
         'webhook_secret' => env('WEBXPAY_WEBHOOK_SECRET'),
+        'api_username' => env('WEBXPAY_API_USERNAME'),
+        'api_password' => env('WEBXPAY_API_PASSWORD'),
+        'secret_key' => env('WEBXPAY_SECRET_KEY'),
+        'public_key' => env('WEBXPAY_PUBLIC_KEY'),
+        'enc_method' => env('WEBXPAY_ENC_METHOD', 'JCs3J+6oSz4V0LgE0zi/Bg=='),
+        'checkout_url' => env('WEBXPAY_CHECKOUT_URL', 'https://webxpay.com/index.php?route=checkout/billing'),
     ],
 
-    'dialog_genie' => [
-        'merchant_id' => env('DIALOG_GENIE_MERCHANT_ID'),
-        'webhook_secret' => env('DIALOG_GENIE_WEBHOOK_SECRET'),
+    'genie' => [
+        'merchant_id' => env('GENIE_MERCHANT_ID'),
+        'webhook_secret' => env('GENIE_WEBHOOK_SECRET'),
+    ],
+
+    'koko_pay' => [
+        'merchant_id' => env('KOKO_PAY_MERCHANT_ID'),
+        'webhook_secret' => env('KOKO_PAY_WEBHOOK_SECRET'),
+    ],
+
+    'mint_pay' => [
+        'merchant_id' => env('MINT_PAY_MERCHANT_ID'),
+        'webhook_secret' => env('MINT_PAY_WEBHOOK_SECRET'),
+    ],
+
+    'translation' => [
+        'provider' => env('TRANSLATION_PROVIDER', 'libretranslate'),
+        'base_url' => env('LIBRETRANSLATE_URL', 'https://libretranslate.com/translate'),
+        'api_key' => env('LIBRETRANSLATE_API_KEY'),
+        'google_api_key' => env('GOOGLE_TRANSLATE_API_KEY'),
+    ],
+
+    'xai' => [
+        'key' => env('XAI_API_KEY'),
+        'model' => env('XAI_MODEL', 'grok-2-latest'),
+    ],
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+    ],
+
+    'voice' => [
+        'provider' => env('VOICE_TRANSCRIBE_PROVIDER', 'deepgram'),
+    ],
+
+    'deepgram' => [
+        'key' => env('DEEPGRAM_API_KEY'),
     ],
 
     'reverb' => [

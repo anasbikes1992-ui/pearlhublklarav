@@ -16,7 +16,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   int _totalListings = 0;
   int _pendingVerifications = 0;
   double _platformRevenue = 0;
-  String? _error;
 
   @override
   void initState() {
@@ -27,7 +26,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Future<void> _loadStats() async {
     setState(() {
       _loading = true;
-      _error = null;
     });
     try {
       final service = context.read<AdminApiService>();
@@ -125,7 +123,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         _StatCard(
                           title: 'Platform\nRevenue',
                           value:
-                              'LKR ${(_platformRevenue / 1_000_000).toStringAsFixed(1)}M',
+                              'LKR ${(_platformRevenue / 1000000).toStringAsFixed(1)}M',
                           icon: Icons.trending_up_rounded,
                           color: const Color(0xFFff9500),
                           onTap: () => context.push('/analytics'),
@@ -163,6 +161,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       subtitle: 'Platform-wide performance metrics',
                       color: const Color(0xFF00c896),
                       onTap: () => context.push('/analytics'),
+                    ),
+                    const SizedBox(height: 10),
+                    _QuickAction(
+                      icon: Icons.rule_rounded,
+                      title: 'Vertical Policy',
+                      subtitle: 'Review commission and flow logic by vertical',
+                      color: const Color(0xFFd4af37),
+                      onTap: () => context.push('/vertical-policy'),
                     ),
                   ],
                 ),

@@ -158,7 +158,7 @@ class CustomerAnimationExamples {
           color: Colors.blue,
           size: 30,
         ),
-      ).animate().pulse(),
+      ),
     );
   }
 

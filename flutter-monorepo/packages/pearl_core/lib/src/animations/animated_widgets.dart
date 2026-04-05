@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'animation_utils.dart';
 
 /// A wrapper widget that applies animations to its child
 /// Use this widget to easily add animations to any UI element
 class AnimatedContainer extends StatelessWidget {
   final Widget child;
-  final List<Effect<dynamic>> effects;
+  final List<dynamic> effects;
   final Duration delay;
   final bool onHover;
-  final List<Effect<dynamic>>? hoverEffects;
+  final List<dynamic>? hoverEffects;
 
   const AnimatedContainer({
     Key? key,
@@ -22,20 +21,18 @@ class AnimatedContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget animated = child.animate(delay: delay).custom(
-          duration: Duration(milliseconds: 300),
-          builder: (context, value, child) => child,
-        );
-
-    for (final effect in effects) {
-      animated = animated.animate().custom(
-            duration: effect.duration ?? Duration(milliseconds: 300),
-            builder: (context, value, child) => Opacity(
-              opacity: 1.0,
-              child: child,
-            ),
-          );
-    }
+    final animated = TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 300),
+      child: child,
+      builder: (_, value, innerChild) => Opacity(
+        opacity: value,
+        child: Transform.scale(
+          scale: 0.98 + (0.02 * value),
+          child: innerChild,
+        ),
+      ),
+    );
 
     if (onHover && hoverEffects != null) {
       return MouseRegion(
@@ -121,7 +118,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
 class AnimatedText extends StatelessWidget {
   final String text;
   final TextStyle? style;
-  final List<Effect<dynamic>>? customEffects;
+  final List<dynamic>? customEffects;
   final Duration delay;
 
   const AnimatedText(
@@ -134,10 +131,11 @@ class AnimatedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effects = customEffects ?? AnimationEffects.fadeIn();
-    return Text(text, style: style)
-        .animate(delay: delay)
-        .fadeIn(duration: const Duration(milliseconds: 300));
+    return AnimatedOpacity(
+      opacity: 1,
+      duration: const Duration(milliseconds: 300),
+      child: Text(text, style: style),
+    );
   }
 }
 
@@ -147,7 +145,7 @@ class AnimatedListView extends StatelessWidget {
   final ScrollPhysics? physics;
   final EdgeInsets padding;
   final Duration staggerDelay;
-  final List<Effect<dynamic>>? itemEffects;
+  final List<dynamic>? itemEffects;
 
   const AnimatedListView({
     Key? key,
@@ -160,17 +158,16 @@ class AnimatedListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effects = itemEffects ?? AnimationEffects.slideInFromBottom();
-
     return ListView.builder(
       physics: physics,
       padding: padding,
       itemCount: children.length,
       itemBuilder: (context, index) {
-        final delay = staggerDelay * index;
-        return children[index]
-            .animate(delay: delay)
-            .fadeIn(duration: const Duration(milliseconds: 300));
+        return AnimatedOpacity(
+          opacity: 1,
+          duration: const Duration(milliseconds: 300),
+          child: children[index],
+        );
       },
     );
   }
@@ -182,8 +179,8 @@ class AnimatedCard extends StatelessWidget {
   final EdgeInsets padding;
   final Color backgroundColor;
   final double borderRadius;
-  final List<Shadow>? shadows;
-  final List<Effect<dynamic>>? effects;
+  final List<BoxShadow>? shadows;
+  final List<dynamic>? effects;
   final VoidCallback? onTap;
 
   const AnimatedCard({
@@ -199,8 +196,6 @@ class AnimatedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectsToUse = effects ?? AnimationEffects.scaleIn();
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -213,10 +208,7 @@ class AnimatedCard extends StatelessWidget {
           padding: padding,
           child: child,
         ),
-      )
-          .animate()
-          .fadeIn(duration: const Duration(milliseconds: 300))
-          .scale(begin: const Offset(0.98, 0.98)),
+      ),
     );
   }
 }

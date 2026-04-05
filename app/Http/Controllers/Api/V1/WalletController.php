@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Wallet;
 use App\Models\WalletTransaction;
+use App\Services\WalletService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class WalletController extends BaseApiController
 {
+    public function __construct(private readonly WalletService $walletService)
+    {
+    }
+
     public function balance(Request $request): JsonResponse
     {
-        $wallet = Wallet::firstOrCreate(
-            ['user_id' => $request->user()->id],
-            ['balance' => 0, 'currency' => 'LKR', 'status' => 'active']
-        );
+        $wallet = $this->walletService->getOrCreate($request->user()->id, 'LKR');
 
         return $this->success([
             'balance' => $wallet->balance,

@@ -7,7 +7,6 @@ class AdminAuthService {
   final FlutterSecureStorage _storage;
 
   String? _token;
-  Map<String, dynamic>? _currentUser;
 
   AdminAuthService({required this.apiClient})
       : _storage = const FlutterSecureStorage();
@@ -42,7 +41,6 @@ class AdminAuthService {
 
   Future<void> logout() async {
     _token = null;
-    _currentUser = null;
     await _storage.delete(key: 'admin_auth_token');
     apiClient.clearToken();
   }

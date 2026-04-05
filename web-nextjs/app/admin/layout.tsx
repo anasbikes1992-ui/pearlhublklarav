@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '../../components/auth-context';
 
 const NAV_ITEMS = [
@@ -19,16 +19,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [checked, setChecked] = useState(false);
+  const checked = user !== undefined && !!user && (user as { role?: string }).role === 'admin';
 
   useEffect(() => {
-    if (user !== undefined) {
-      // user is null (not logged in) or role is not admin → redirect
-      if (!user || (user as { role?: string }).role !== 'admin') {
-        router.replace('/');
-      } else {
-        setChecked(true);
-      }
+    if (user !== undefined && (!user || (user as { role?: string }).role !== 'admin')) {
+      router.replace('/');
     }
   }, [user, router]);
 

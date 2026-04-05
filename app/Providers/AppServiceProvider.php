@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\ListingRepositoryInterface;
 use App\Repositories\Eloquent\ListingRepository;
-use App\Services\Payments\DialogGenieGateway;
-use App\Services\Payments\PayHereGateway;
+use App\Services\Payments\GenieGateway;
+use App\Services\Payments\KokoPayGateway;
+use App\Services\Payments\MintPayGateway;
 use App\Services\Payments\PaymentService;
 use App\Services\Payments\WebXPayGateway;
+use App\Services\VerticalPolicy;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,12 +20,14 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ListingRepositoryInterface::class, ListingRepository::class);
+        $this->app->singleton(VerticalPolicy::class);
 
         $this->app->singleton(PaymentService::class, function () {
             return new PaymentService([
-                'payhere' => new PayHereGateway(),
                 'webxpay' => new WebXPayGateway(),
-                'dialog_genie' => new DialogGenieGateway(),
+                'genie' => new GenieGateway(),
+                'koko_pay' => new KokoPayGateway(),
+                'mint_pay' => new MintPayGateway(),
             ]);
         });
     }

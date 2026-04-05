@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdminRole::class,
+            'owns.listing' => \App\Http\Middleware\EnsureOwnsListingOrAdmin::class,
         ]);
 
         // Append CORS headers for all API responses.

@@ -12,6 +12,17 @@ class SearchService
      */
     public function search(string $query = '', array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
+        if ($query !== '' && config('scout.driver')) {
+            return Listing::search($query)
+                ->query(function ($builder) use ($filters): void {
+                    if (! empty($filters['vertical'])) {
+                        $builder->where('vertical', $filters['vertical']);
+                    }
+                    $builder->where('status', 'published')->where('is_hidden', false);
+                })
+                ->paginate($perPage);
+        }
+
         $builder = Listing::query()->with('listingType');
 
         if ($query !== '') {

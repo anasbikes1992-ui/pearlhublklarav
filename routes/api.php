@@ -5,13 +5,17 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\SocialController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\CashbackController;
+use App\Http\Controllers\Api\V1\ChatController;
+use App\Http\Controllers\Api\V1\ConciergeController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\ListingController;
+use App\Http\Controllers\Api\V1\PaymentCheckoutController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\PromoCodeController;
 use App\Http\Controllers\Api\V1\PropertyController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\SmeController;
 use App\Http\Controllers\Api\V1\TaxiRideController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VerificationAuditController;
@@ -26,9 +30,12 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     Route::post('/payments/webhooks/webxpay', [PaymentWebhookController::class, 'webxpay']);
-    Route::post('/payments/webhooks/dialog-genie', [PaymentWebhookController::class, 'dialogGenie']);
+    Route::post('/payments/webhooks/genie', [PaymentWebhookController::class, 'genie']);
+    Route::post('/payments/webhooks/koko-pay', [PaymentWebhookController::class, 'kokoPay']);
+    Route::post('/payments/webhooks/mint-pay', [PaymentWebhookController::class, 'mintPay']);
 
     Route::get('/search', SearchController::class);
+    Route::post('/concierge/chat', [ConciergeController::class, 'chat'])->middleware('throttle:api');
 
     // Public promo code validation
     Route::post('/promo-codes/validate', [PromoCodeController::class, 'validate']);
@@ -39,10 +46,12 @@ Route::prefix('v1')->group(function (): void {
     // Must be before apiResource to avoid {listing} catching 'my'
     Route::get('/listings/my', [ListingController::class, 'myListings'])->middleware('auth:sanctum');
     Route::apiResource('listings', ListingController::class)->only(['index', 'show']);
-    Route::apiResource('listings', ListingController::class)->except(['index', 'show'])->middleware('auth:sanctum');
+    Route::apiResource('listings', ListingController::class)->except(['index', 'show'])->middleware(['auth:sanctum', 'owns.listing']);
     Route::get('/listings/{listing}/reviews', [ReviewController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function (): void {
+        Route::post('/payments/checkout', [PaymentCheckoutController::class, 'create']);
+
         Route::get('/users/profile', [UserController::class, 'profile']);
         Route::put('/users/profile', [UserController::class, 'updateProfile']);
 
@@ -67,6 +76,17 @@ Route::prefix('v1')->group(function (): void {
         // Wallet
         Route::get('/wallet/balance', [WalletController::class, 'balance']);
         Route::get('/wallet/transactions', [WalletController::class, 'transactions']);
+
+        // Pre-booking chat
+        Route::get('/chat/{listingId}/messages', [ChatController::class, 'history']);
+        Route::post('/chat/messages/text', [ChatController::class, 'sendText']);
+        Route::post('/chat/messages/voice', [ChatController::class, 'sendVoice']);
+
+        // SME v2
+        Route::post('/sme/subscriptions', [SmeController::class, 'subscribe']);
+        Route::get('/sme/listings/{listing}/products', [SmeController::class, 'products']);
+        Route::post('/sme/listings/{listing}/products', [SmeController::class, 'createProduct']);
+        Route::post('/sme/sales-reports', [SmeController::class, 'reportSales']);
 
         // Admin-only routes
         Route::prefix('admin')->middleware('admin')->group(function (): void {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pearl_core/pearl_core.dart';
+import 'package:pearl_core/pearl_core.dart' show SharedApiClient;
 import 'services/auth_service.dart';
 import 'services/listing_service.dart';
 import 'services/booking_service.dart';
@@ -10,6 +10,8 @@ import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/listing_detail_screen.dart';
 import 'screens/bookings_screen.dart';
+import 'screens/vertical_hub_screen.dart';
+import 'screens/concierge_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,6 +112,14 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/bookings',
           builder: (context, state) => const BookingsScreen(),
+        ),
+        GoRoute(
+          path: '/verticals',
+          builder: (context, state) => const VerticalHubScreen(),
+        ),
+        GoRoute(
+          path: '/concierge',
+          builder: (context, state) => const ConciergeScreen(),
         ),
       ],
     );

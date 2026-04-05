@@ -103,7 +103,10 @@ class _ProviderListingsScreenState extends State<ProviderListingsScreen> {
         backgroundColor: const Color(0xFF00d4ff),
         foregroundColor: Colors.black,
         icon: const Icon(Icons.add),
-        label: const Text('New Listing', fontWeight: FontWeight.bold),
+        label: const Text(
+          'New Listing',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         onPressed: () => context.push('/listings/create'),
       ),
       body: _loading

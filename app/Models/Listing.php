@@ -19,11 +19,13 @@ class Listing extends Model
         'vertical',
         'title',
         'slug',
+        'seo_slug',
         'description',
         'price',
         'currency',
         'status',
         'metadata',
+        'availability_calendar',
         'latitude',
         'longitude',
         'verified_at',
@@ -36,6 +38,7 @@ class Listing extends Model
         return [
             'price' => 'decimal:2',
             'metadata' => 'array',
+            'availability_calendar' => 'array',
             'latitude' => 'decimal:8',
             'longitude' => 'decimal:8',
             'verified_at' => 'datetime',
@@ -81,12 +84,16 @@ class Listing extends Model
         return [
             'id' => $this->id,
             'slug' => $this->slug,
+            'seo_slug' => $this->seo_slug,
             'title' => $this->title,
             'description' => $this->description,
             'vertical' => $this->vertical,
             'price' => $this->price,
             'status' => $this->status,
             'is_hidden' => $this->is_hidden,
+            'availability_calendar' => $this->availability_calendar,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
         ];
     }
 }

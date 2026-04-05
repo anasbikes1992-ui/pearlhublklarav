@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import { AuthProvider } from '../components/auth-context';
+import ConciergeBubble from '../components/concierge-bubble';
 import SiteChrome from '../components/site-chrome';
 import './styles.css';
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <SiteChrome>{children}</SiteChrome>
+          <ConciergeBubble />
         </AuthProvider>
       </body>
     </html>

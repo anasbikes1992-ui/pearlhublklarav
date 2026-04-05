@@ -224,7 +224,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                         listing.description,
                         style: const TextStyle(
                           color: Color(0xFF8b949e),
-                          lineHeight: 1.6,
+                          height: 1.6,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -323,7 +323,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Column(
-                          crossAxisDistance: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,

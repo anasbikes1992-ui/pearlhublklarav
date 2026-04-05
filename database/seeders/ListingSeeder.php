@@ -33,7 +33,7 @@ class ListingSeeder extends Seeder
         }
 
         // Create demo listings for each vertical
-        $verticals = ['property', 'stay', 'vehicle', 'event', 'sme', 'experience'];
+        $verticals = ['property', 'stay', 'vehicle', 'taxi', 'event', 'sme'];
 
         foreach ($verticals as $vertical) {
             Listing::factory()

@@ -1,5 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:pearl_core/pearl_core.dart';
+import 'package:pearl_core/pearl_core.dart' show SharedApiClient;
 import '../models/models.dart';
 
 class AuthService {
@@ -89,14 +89,15 @@ class AuthService {
       _token = null;
       _currentUser = null;
       await secureStorage.delete(key: 'auth_token');
-      apiClient.setToken(null);
+      apiClient.clearToken();
     }
   }
 
   Future<void> _loadCurrentUser() async {
     try {
-      final response = await apiClient.get('/users/me');
-      _currentUser = AuthUser.fromJson(response.data as Map<String, dynamic>);
+      final response = await apiClient.get('/users/profile');
+      final payload = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+      _currentUser = AuthUser.fromJson(payload);
     } catch (e) {
       rethrow;
     }

@@ -20,11 +20,13 @@ class StoreListingRequest extends FormRequest
             // provider_id is injected from the authenticated user — never trust client input.
             'vertical' => ['required', 'string', 'in:property,stay,vehicle,taxi,event,sme'],
             'title' => ['required', 'string', 'max:160'],
+            'seo_slug' => ['nullable', 'string', 'max:220'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'currency' => ['required', 'string', 'size:3'],
             'status' => ['sometimes', 'string', 'in:draft,pending_verification,published,paused,archived'],
             'metadata' => ['nullable', 'array'],
+            'availability_calendar' => ['nullable', 'array'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'listing_type' => ['required', 'array'],

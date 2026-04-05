@@ -1,4 +1,3 @@
-import 'dart:convert';
 import '../models/social_models.dart';
 import 'api_exceptions.dart';
 import '../network/shared_api_client.dart';
@@ -14,10 +13,10 @@ class SocialApiService {
     final params = <String, String>{'page': '$page'};
     if (vertical != null) params['vertical'] = vertical;
 
-    final response = await _client.get('/api/v1/social/feed', queryParams: params);
+    final response = await _client.get('/api/v1/social/feed', queryParameters: params);
     _assertOk(response, 'getFeed');
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final body = response.data as Map<String, dynamic>;
     final data = (body['data']?['data'] ?? body['data'] ?? []) as List<dynamic>;
     return data
         .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
@@ -38,21 +37,21 @@ class SocialApiService {
       if (listingId != null) 'listing_id': listingId,
     };
 
-    final response = await _client.post('/api/v1/social/posts', body: payload);
+    final response = await _client.post('/api/v1/social/posts', data: payload);
     _assertOk(response, 'createPost');
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final body = response.data as Map<String, dynamic>;
     return SocialPost.fromJson((body['data'] ?? body) as Map<String, dynamic>);
   }
 
   /// POST /api/v1/social/posts/{postId}/like — toggles like, requires auth
   Future<({bool liked, int likesCount})> toggleLike(String postId) async {
     final response =
-        await _client.post('/api/v1/social/posts/$postId/like', body: {});
+      await _client.post('/api/v1/social/posts/$postId/like', data: {});
     _assertOk(response, 'toggleLike');
 
-    final data =
-        jsonDecode(response.body)['data'] as Map<String, dynamic>? ?? {};
+    final body = response.data as Map<String, dynamic>;
+    final data = body['data'] as Map<String, dynamic>? ?? {};
     return (
       liked: (data['liked'] as bool?) ?? false,
       likesCount: (data['likes_count'] as num?)?.toInt() ?? 0,
@@ -63,11 +62,11 @@ class SocialApiService {
   Future<List<SocialComment>> getComments(String postId, {int page = 1}) async {
     final response = await _client.get(
       '/api/v1/social/posts/$postId/comments',
-      queryParams: {'page': '$page'},
+      queryParameters: {'page': '$page'},
     );
     _assertOk(response, 'getComments');
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final body = response.data as Map<String, dynamic>;
     final data =
         (body['data']?['data'] ?? body['data'] ?? []) as List<dynamic>;
     return data
@@ -87,19 +86,18 @@ class SocialApiService {
     };
 
     final response = await _client
-        .post('/api/v1/social/posts/$postId/comments', body: payload);
+      .post('/api/v1/social/posts/$postId/comments', data: payload);
     _assertOk(response, 'addComment');
 
-    final respBody =
-        jsonDecode(response.body)['data'] as Map<String, dynamic>? ??
-            jsonDecode(response.body) as Map<String, dynamic>;
+    final responseBody = response.data as Map<String, dynamic>;
+    final respBody = responseBody['data'] as Map<String, dynamic>? ?? responseBody;
     return SocialComment.fromJson(respBody);
   }
 
   /// POST /api/v1/social/users/{userId}/follow — requires auth
   Future<void> follow(String userId) async {
     final response =
-        await _client.post('/api/v1/social/users/$userId/follow', body: {});
+      await _client.post('/api/v1/social/users/$userId/follow', data: {});
     _assertOk(response, 'follow');
   }
 
@@ -116,9 +114,8 @@ class SocialApiService {
         await _client.get('/api/v1/social/users/$userId/profile');
     _assertOk(response, 'getProfile');
 
-    final body =
-        jsonDecode(response.body)['data'] as Map<String, dynamic>? ??
-            jsonDecode(response.body) as Map<String, dynamic>;
+    final respBody = response.data as Map<String, dynamic>;
+    final body = respBody['data'] as Map<String, dynamic>? ?? respBody;
     return SocialProfile.fromJson(body);
   }
 
@@ -126,7 +123,7 @@ class SocialApiService {
     final statusCode = response.statusCode as int;
     if (statusCode < 200 || statusCode >= 300) {
       throw ApiException(
-        message: 'SocialApiService.$method failed ($statusCode)',
+        'SocialApiService.$method failed ($statusCode)',
         statusCode: statusCode,
       );
     }

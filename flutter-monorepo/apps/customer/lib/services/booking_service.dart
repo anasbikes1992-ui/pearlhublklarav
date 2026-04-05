@@ -1,4 +1,4 @@
-import 'package:pearl_core/pearl_core.dart';
+import 'package:pearl_core/pearl_core.dart' show SharedApiClient;
 import '../models/models.dart';
 
 class BookingService {
@@ -9,7 +9,8 @@ class BookingService {
   Future<List<Booking>> getMyBookings() async {
     try {
       final response = await apiClient.get('/bookings');
-      final bookingsJson = response.data as List;
+      final payload = (response.data['data'] ?? response.data) as List<dynamic>;
+      final bookingsJson = payload;
       return bookingsJson
           .map((item) => Booking.fromJson(item as Map<String, dynamic>))
           .toList();
@@ -21,7 +22,8 @@ class BookingService {
   Future<Booking> getBooking(String id) async {
     try {
       final response = await apiClient.get('/bookings/$id');
-      return Booking.fromJson(response.data as Map<String, dynamic>);
+      final payload = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+      return Booking.fromJson(payload);
     } catch (e) {
       rethrow;
     }
@@ -39,14 +41,13 @@ class BookingService {
         '/bookings',
         data: {
           'listing_id': listingId,
-          'check_in_date': checkInDate.toIso8601String(),
-          'check_out_date': checkOutDate.toIso8601String(),
-          'nights': nights,
-          'total_price': totalPrice,
+          'start_at': checkInDate.toIso8601String(),
+          'end_at': checkOutDate.toIso8601String(),
         },
       );
 
-      return Booking.fromJson(response.data as Map<String, dynamic>);
+      final payload = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+      return Booking.fromJson(payload);
     } catch (e) {
       rethrow;
     }
@@ -54,8 +55,9 @@ class BookingService {
 
   Future<Booking> cancelBooking(String id) async {
     try {
-      final response = await apiClient.post('/bookings/$id/cancel', data: {});
-      return Booking.fromJson(response.data as Map<String, dynamic>);
+      final response = await apiClient.put('/bookings/$id', data: {'status': 'cancelled'});
+      final payload = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+      return Booking.fromJson(payload);
     } catch (e) {
       rethrow;
     }
@@ -63,7 +65,7 @@ class BookingService {
 
   Future<void> completeBooking(String id) async {
     try {
-      await apiClient.post('/bookings/$id/complete', data: {});
+      await apiClient.put('/bookings/$id', data: {'status': 'completed'});
     } catch (e) {
       rethrow;
     }

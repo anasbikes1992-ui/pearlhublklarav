@@ -1,4 +1,4 @@
-import 'package:pearl_core/pearl_core.dart';
+import 'package:pearl_core/pearl_core.dart' show SharedApiClient;
 import '../models/models.dart';
 
 class ListingService {
@@ -23,8 +23,8 @@ class ListingService {
         queryParameters: queryParams,
       );
 
-      final data = response.data as Map<String, dynamic>;
-      final listingsJson = data['data'] as List;
+      final outer = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+      final listingsJson = (outer['data'] ?? []) as List<dynamic>;
       return listingsJson
           .map((item) => Listing.fromJson(item as Map<String, dynamic>))
           .toList();
@@ -36,7 +36,8 @@ class ListingService {
   Future<Listing> getListingBySlug(String slug) async {
     try {
       final response = await apiClient.get('/listings/$slug');
-      return Listing.fromJson(response.data as Map<String, dynamic>);
+      final payload = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+      return Listing.fromJson(payload);
     } catch (e) {
       rethrow;
     }
@@ -49,7 +50,8 @@ class ListingService {
         queryParameters: {'q': query},
       );
 
-      final listingsJson = response.data as List;
+      final outer = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+      final listingsJson = (outer['data'] ?? []) as List<dynamic>;
       return listingsJson
           .map((item) => Listing.fromJson(item as Map<String, dynamic>))
           .toList();
@@ -60,8 +62,9 @@ class ListingService {
 
   Future<List<Listing>> getFeaturedListings() async {
     try {
-      final response = await apiClient.get('/listings/featured');
-      final listingsJson = response.data as List;
+        final response = await apiClient.get('/listings', queryParameters: {'status': 'published'});
+        final outer = (response.data['data'] ?? response.data) as Map<String, dynamic>;
+        final listingsJson = (outer['data'] ?? []) as List<dynamic>;
       return listingsJson
           .map((item) => Listing.fromJson(item as Map<String, dynamic>))
           .toList();

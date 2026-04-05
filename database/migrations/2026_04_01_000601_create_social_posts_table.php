@@ -8,9 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('social_posts')) {
+            return;
+        }
+
         Schema::create('social_posts', function (Blueprint $table): void {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->text('content');
             $table->json('media_urls')->nullable();
             $table->string('vertical_tag', 30)->nullable()

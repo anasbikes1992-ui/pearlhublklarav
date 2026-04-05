@@ -18,9 +18,19 @@ class PaymentWebhookController extends BaseApiController
         return $this->handleGateway($request, 'webxpay', 'X-WebXPay-Signature');
     }
 
-    public function dialogGenie(Request $request): JsonResponse
+    public function genie(Request $request): JsonResponse
     {
-        return $this->handleGateway($request, 'dialog_genie', 'X-Dialog-Genie-Signature');
+        return $this->handleGateway($request, 'genie', 'X-Genie-Signature');
+    }
+
+    public function kokoPay(Request $request): JsonResponse
+    {
+        return $this->handleGateway($request, 'koko_pay', 'X-KokoPay-Signature');
+    }
+
+    public function mintPay(Request $request): JsonResponse
+    {
+        return $this->handleGateway($request, 'mint_pay', 'X-MintPay-Signature');
     }
 
     private function handleGateway(Request $request, string $gateway, string $signatureHeader): JsonResponse

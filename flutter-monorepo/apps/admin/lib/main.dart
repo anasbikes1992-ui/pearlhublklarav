@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pearl_core/pearl_core.dart';
-import 'models/models.dart';
 import 'services/admin_service.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/verification_screen.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/users_screen.dart';
+import 'screens/vertical_policy_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,6 +87,10 @@ class MyApp extends StatelessWidget {
             GoRoute(
               path: '/users',
               builder: (context, state) => const UsersScreen(),
+            ),
+            GoRoute(
+              path: '/vertical-policy',
+              builder: (context, state) => const VerticalPolicyScreen(),
             ),
           ],
         ),

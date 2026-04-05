@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from './auth-context';
+import LanguageSelector from './language-selector';
 
 const verticals = [
   { href: '/', label: 'Home' },
@@ -58,6 +59,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="market-header__actions">
+          <LanguageSelector />
           <Link href="/backup" className="market-header__backup">
             Current UI backup
           </Link>

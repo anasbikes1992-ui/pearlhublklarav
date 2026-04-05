@@ -18,11 +18,13 @@ class UpdateListingRequest extends FormRequest
     {
         return [
             'title' => ['sometimes', 'string', 'max:160'],
+            'seo_slug' => ['nullable', 'string', 'max:220'],
             'description' => ['nullable', 'string'],
             'price' => ['sometimes', 'numeric', 'min:0'],
             'currency' => ['sometimes', 'string', 'size:3'],
             'status' => ['sometimes', 'string', 'in:draft,pending_verification,published,paused,archived'],
             'metadata' => ['nullable', 'array'],
+            'availability_calendar' => ['nullable', 'array'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'listing_type' => ['sometimes', 'array'],

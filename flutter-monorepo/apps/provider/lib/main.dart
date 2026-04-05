@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pearl_core/pearl_core.dart';
-import 'models/models.dart';
 import 'services/provider_service.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/listings_screen.dart';
 import 'screens/bookings_screen.dart';
 import 'screens/create_listing_screen.dart';
+import 'screens/sme_subscription_screen.dart';
+import 'screens/sales_report_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,6 +88,14 @@ class MyApp extends StatelessWidget {
             GoRoute(
               path: '/bookings',
               builder: (context, state) => const ProviderBookingsScreen(),
+            ),
+            GoRoute(
+              path: '/sme/subscriptions',
+              builder: (context, state) => const SmeSubscriptionScreen(),
+            ),
+            GoRoute(
+              path: '/sme/sales-report',
+              builder: (context, state) => const SalesReportScreen(),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import ListingCard from '../../components/listing-card';
+import DiscoveryMap from '../../components/map/discovery-map';
 import { searchListings, type Vertical } from '../../lib/api';
 
 type SearchParams = { q?: string; vertical?: string };
@@ -25,6 +26,13 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   }
 
   const results = await searchListings(q, vertical);
+  const pins = results
+    .filter((item) => typeof item.latitude === 'number' && typeof item.longitude === 'number')
+    .map((item) => ({
+      lat: item.latitude as number,
+      lng: item.longitude as number,
+      label: item.title,
+    }));
 
   return (
     <main className="page-shell catalog-page">
@@ -57,11 +65,19 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
           <p>No listings matched your search. Try a different keyword or browse a vertical from the navigation.</p>
         </div>
       ) : (
-        <section className="listing-grid">
-          {results.map((item) => (
-            <ListingCard key={item.id} item={item} href={`/${item.vertical === 'stay' ? 'stays' : item.vertical}/${item.slug}`} />
-          ))}
-        </section>
+        <>
+          {pins.length > 0 && (
+            <section className="search-map">
+              <h2>Map view</h2>
+              <DiscoveryMap pins={pins} />
+            </section>
+          )}
+          <section className="listing-grid">
+            {results.map((item) => (
+              <ListingCard key={item.id} item={item} href={`/${item.vertical === 'stay' ? 'stays' : item.vertical}/${item.slug}`} />
+            ))}
+          </section>
+        </>
       )}
     </main>
   );

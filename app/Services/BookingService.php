@@ -6,12 +6,16 @@ use App\Events\BookingStatusUpdated;
 use App\Models\Booking;
 use App\Models\Escrow;
 use App\Models\Listing;
-use App\Models\PlatformSetting;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class BookingService
 {
+    public function __construct(private readonly VerticalPolicy $verticalPolicy)
+    {
+    }
+
     public function listForUser(string $userId): Collection
     {
         return Booking::query()
@@ -28,11 +32,37 @@ class BookingService
     {
         $listing = Listing::query()->findOrFail($payload['listing_id']);
 
-        $basePrice = (float) $listing->price;
-        $commissionRate = PlatformSetting::decimal('booking_commission_rate', 0.08);
-        $total = round($basePrice + ($basePrice * $commissionRate), 2);
+        if ($this->verticalPolicy->isInquiryOnly($listing->vertical)) {
+            throw new RuntimeException('This vertical supports inquiry-only flow and does not allow platform bookings.');
+        }
 
-        $booking = DB::transaction(function () use ($listing, $userId, $payload, $basePrice, $commissionRate, $total): Booking {
+        if (! empty($payload['start_at']) && ! empty($payload['end_at'])) {
+            $hasConflict = Booking::query()
+                ->where('listing_id', $listing->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->where(function ($query) use ($payload): void {
+                    $query->whereBetween('start_at', [$payload['start_at'], $payload['end_at']])
+                        ->orWhereBetween('end_at', [$payload['start_at'], $payload['end_at']])
+                        ->orWhere(function ($inner) use ($payload): void {
+                            $inner->where('start_at', '<=', $payload['start_at'])
+                                ->where('end_at', '>=', $payload['end_at']);
+                        });
+                })
+                ->exists();
+
+            if ($hasConflict) {
+                throw new RuntimeException('Requested date range conflicts with an existing booking.');
+            }
+        }
+
+        $basePrice = (float) $listing->price;
+        $commissionRate = $this->verticalPolicy->commissionRate($listing->vertical);
+        $taxRate = $this->verticalPolicy->taxRate($listing->vertical);
+        $commission = $basePrice * $commissionRate;
+        $tax = ($basePrice + $commission) * $taxRate;
+        $total = round($basePrice + $commission + $tax, 2);
+
+        $booking = DB::transaction(function () use ($listing, $userId, $payload, $basePrice, $commissionRate, $taxRate, $commission, $tax, $total): Booking {
             $booking = Booking::query()->create([
                 'listing_id' => $listing->id,
                 'customer_id' => $userId,
@@ -45,19 +75,24 @@ class BookingService
                 'notes' => json_encode([
                     'base_price' => $basePrice,
                     'commission_rate' => $commissionRate,
+                    'commission_amount' => round($commission, 2),
+                    'tax_rate' => $taxRate,
+                    'tax_amount' => round($tax, 2),
                     'invoice_ref' => 'INV-'.strtoupper(substr((string) $listing->id, 0, 8)).'-'.now()->timestamp,
                 ]),
             ]);
 
-            Escrow::query()->create([
-                'booking_id' => $booking->id,
-                'amount' => $total,
-                'currency' => $listing->currency,
-                'status' => 'held',
-                'meta' => [
-                    'reason' => 'booking_escrow_hold',
-                ],
-            ]);
+            if ($this->verticalPolicy->requiresEscrow($listing->vertical)) {
+                Escrow::query()->create([
+                    'booking_id' => $booking->id,
+                    'amount' => $total,
+                    'currency' => $listing->currency,
+                    'status' => 'held',
+                    'meta' => [
+                        'reason' => 'booking_escrow_hold',
+                    ],
+                ]);
+            }
 
             return $booking;
         });
