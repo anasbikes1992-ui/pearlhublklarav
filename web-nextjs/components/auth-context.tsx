@@ -6,7 +6,7 @@ import type { AuthUser } from '../lib/api';
 type AuthContextType = {
   user: AuthUser | null | undefined; // undefined = not yet checked
   login: (email: string, password: string) => Promise<AuthUser>;
-  register: (fullName: string, email: string, password: string, passwordConfirmation: string) => Promise<void>;
+  register: (fullName: string, email: string, password: string, passwordConfirmation: string, referralCode?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 };
@@ -92,14 +92,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (fullName: string, email: string, password: string, password_confirmation: string) => {
+    async (fullName: string, email: string, password: string, password_confirmation: string, referralCode?: string) => {
       setLoading(true);
       try {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           // Laravel expects full_name, not name
-          body: JSON.stringify({ full_name: fullName, email, password, password_confirmation }),
+          body: JSON.stringify({ full_name: fullName, email, password, password_confirmation, referral_code: referralCode || undefined }),
         });
         const data = (await res.json()) as {
           data?: { user?: AuthUser; token?: string };

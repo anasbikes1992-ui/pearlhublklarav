@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Booking;
 use App\Models\Listing;
+use App\Models\PearlPoint;
 use App\Models\PlatformSetting;
+use App\Models\Referral;
 use App\Models\SocialPost;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\VerticalFeeConfig;
 use App\Models\WalletTransaction;
 use App\Services\AuditLogService;
+use App\Services\ReferralBonusService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -18,7 +21,10 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends BaseApiController
 {
-    public function __construct(private readonly AuditLogService $auditLogService)
+    public function __construct(
+        private readonly AuditLogService $auditLogService,
+        private readonly ReferralBonusService $referralBonusService,
+    )
     {
     }
 
@@ -55,6 +61,9 @@ class AdminController extends BaseApiController
                     'successful_transactions' => Transaction::query()->where('status', 'succeeded')->count(),
                     'failed_transactions' => Transaction::query()->whereIn('status', ['failed', 'cancelled'])->count(),
                     'flagged_posts' => SocialPost::query()->where('is_flagged', true)->count(),
+                    'referrals_total' => Referral::query()->count(),
+                    'referral_points_awarded' => (int) Referral::query()->sum('points_awarded'),
+                    'referral_cash_awarded_lkr' => (float) Referral::query()->sum('revenue_bonus_amount'),
                 ],
                 'breakdowns' => [
                     'users_by_role' => $usersByRole,
@@ -312,6 +321,92 @@ class AdminController extends BaseApiController
                 'pending_amount' => (float) Transaction::query()->where('status', 'pending')->sum('amount'),
             ],
         ]);
+    }
+
+    public function revenueIncoming(Request $request): JsonResponse
+    {
+        $days = min(max((int) $request->input('days', 30), 7), 365);
+        $since = now()->subDays($days);
+
+        $totalBookingRevenue = (float) Booking::query()
+            ->whereNotIn('status', ['cancelled', 'refunded'])
+            ->where('created_at', '>=', $since)
+            ->sum('total_amount');
+
+        $transactionIncoming = (float) Transaction::query()
+            ->where('status', 'succeeded')
+            ->where('created_at', '>=', $since)
+            ->sum('amount');
+
+        $byVertical = Booking::query()
+            ->join('listings', 'bookings.listing_id', '=', 'listings.id')
+            ->whereNotIn('bookings.status', ['cancelled', 'refunded'])
+            ->where('bookings.created_at', '>=', $since)
+            ->groupBy('listings.vertical')
+            ->selectRaw('listings.vertical as vertical, COUNT(*) as bookings, SUM(bookings.total_amount) as gross')
+            ->get();
+
+        $daily = Booking::query()
+            ->whereNotIn('status', ['cancelled', 'refunded'])
+            ->where('created_at', '>=', $since)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->selectRaw('DATE(created_at) as day, COUNT(*) as bookings, SUM(total_amount) as gross')
+            ->orderBy('day')
+            ->get();
+
+        return $this->success([
+            'window_days' => $days,
+            'summary' => [
+                'booking_gross_lkr' => $totalBookingRevenue,
+                'transaction_incoming_lkr' => $transactionIncoming,
+                'referral_cash_bonus_lkr' => (float) Referral::query()->where('created_at', '>=', $since)->sum('revenue_bonus_amount'),
+            ],
+            'by_vertical' => $byVertical,
+            'daily' => $daily,
+        ]);
+    }
+
+    public function referralSummary(): JsonResponse
+    {
+        $topReferrers = Referral::query()
+            ->join('users', 'referrals.referrer_id', '=', 'users.id')
+            ->groupBy('referrals.referrer_id', 'users.full_name', 'users.email')
+            ->selectRaw('referrals.referrer_id, users.full_name, users.email, COUNT(*) as referrals, SUM(referrals.points_awarded) as points_awarded, SUM(referrals.revenue_bonus_amount) as cash_awarded_lkr')
+            ->orderByDesc('referrals')
+            ->limit(10)
+            ->get();
+
+        return $this->success([
+            'totals' => [
+                'referrals' => Referral::query()->count(),
+                'points_awarded' => (int) Referral::query()->sum('points_awarded'),
+                'cash_awarded_lkr' => (float) Referral::query()->sum('revenue_bonus_amount'),
+                'users_with_points' => PearlPoint::query()->where('total_earned', '>', 0)->count(),
+            ],
+            'top_referrers' => $topReferrers,
+        ]);
+    }
+
+    public function grantReferralBonus(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'user_id' => ['required', 'uuid', 'exists:users,id'],
+            'points' => ['required', 'integer', 'min:0', 'max:100000'],
+            'cash_bonus_lkr' => ['required', 'numeric', 'min:0', 'max:10000000'],
+            'note' => ['nullable', 'string', 'max:300'],
+        ]);
+
+        $this->referralBonusService->grantManualBonus(
+            (string) $request->user()?->id,
+            $validated['user_id'],
+            (int) $validated['points'],
+            (float) $validated['cash_bonus_lkr'],
+            (string) ($validated['note'] ?? 'Manual referral bonus'),
+        );
+
+        Cache::forget('admin:god-view:v1');
+
+        return $this->success(null, 'Referral bonus granted');
     }
 
     public function configs(): JsonResponse

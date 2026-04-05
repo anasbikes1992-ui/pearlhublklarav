@@ -108,6 +108,10 @@ Route::prefix('v1')->group(function (): void {
             Route::delete('/social/posts/{postId}', [AdminController::class, 'deleteSocialPost'])->whereUuid('postId');
 
             Route::get('/payments', [AdminController::class, 'payments']);
+            Route::get('/revenue/incoming', [AdminController::class, 'revenueIncoming']);
+
+            Route::get('/referrals/summary', [AdminController::class, 'referralSummary']);
+            Route::post('/referrals/grant-bonus', [AdminController::class, 'grantReferralBonus']);
 
             Route::get('/configs', [AdminController::class, 'configs']);
             Route::put('/configs/vertical-fees/{vertical}', [AdminController::class, 'upsertVerticalFee']);

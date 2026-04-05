@@ -18,8 +18,39 @@ const bodyFont = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'PearlHub Pro - Sri Lanka Luxury Marketplace',
-  description: 'Sri Lanka multi-vertical luxury marketplace for properties, stays, vehicles, events, and experiences'
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://web-nextjs-sage-pi.vercel.app'),
+  title: {
+    default: 'PearlHub Pro - Sri Lanka Luxury Marketplace',
+    template: '%s | PearlHub Pro',
+  },
+  description: 'Sri Lanka multi-vertical luxury marketplace for properties, stays, vehicles, events, and experiences.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_LK',
+    url: '/',
+    siteName: 'PearlHub Pro',
+    title: 'PearlHub Pro - Sri Lanka Luxury Marketplace',
+    description: 'Discover premium stays, properties, transport, experiences, and SME services in Sri Lanka.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PearlHub Pro - Sri Lanka Luxury Marketplace',
+    description: 'Discover premium stays, properties, transport, experiences, and SME services in Sri Lanka.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

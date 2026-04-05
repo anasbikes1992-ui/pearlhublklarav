@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +23,7 @@ export default function RegisterPage() {
       return;
     }
     try {
-      await register(name, email, password, confirm);
+      await register(name, email, password, confirm, referralCode.trim());
       router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -64,6 +65,19 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
+            />
+          </div>
+
+          <div className="auth-field">
+            <label htmlFor="referral">Referral code (optional)</label>
+            <input
+              id="referral"
+              type="text"
+              autoComplete="off"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              placeholder="e.g. PH8AB12CD"
+              maxLength={32}
             />
           </div>
 

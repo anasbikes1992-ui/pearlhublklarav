@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use App\Services\ReferralBonusService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,10 @@ use Throwable;
 
 class AuthController extends BaseApiController
 {
+    public function __construct(private readonly ReferralBonusService $referralBonusService)
+    {
+    }
+
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -20,6 +25,7 @@ class AuthController extends BaseApiController
             'email'                 => ['required', 'email', 'max:120', 'unique:users,email'],
             'phone'                 => ['nullable', 'string', 'max:30'],
             'password'              => ['required', 'string', 'min:8', 'confirmed'],
+            'referral_code'         => ['nullable', 'string', 'max:32'],
             // Role is always 'customer' on self-registration — never trust client input.
         ]);
 
@@ -27,6 +33,10 @@ class AuthController extends BaseApiController
         $user->fill($validated);
         $user->role = User::ROLE_CUSTOMER;
         $user->save();
+
+        $this->referralBonusService->ensureReferralIdentity($user);
+        $this->referralBonusService->applyOnRegistration($user, $validated['referral_code'] ?? null);
+
         try {
             $token = $this->issueAccessToken($user);
         } catch (Throwable) {
