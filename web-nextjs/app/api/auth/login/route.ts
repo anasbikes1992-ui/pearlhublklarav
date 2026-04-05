@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   let laravelRes: Response;
-  let backendUnreachable = false;
+  let backendUnavailable = false;
   try {
     laravelRes = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
@@ -28,13 +28,17 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(body),
     });
   } catch {
-    backendUnreachable = true;
+    backendUnavailable = true;
     // Fall through to demo auth below
     laravelRes = new Response(null, { status: 503 });
   }
 
-  // Demo fallback — only triggers when the real API is unreachable
-  if (backendUnreachable) {
+  if (laravelRes.status >= 500) {
+    backendUnavailable = true;
+  }
+
+  // Demo fallback — triggers when the real API is unreachable or failing with 5xx.
+  if (backendUnavailable) {
     const { email, password } = body as { email?: string; password?: string };
     const demo = email ? DEMO_USERS[email] : undefined;
     if (demo && password === demo.password) {
