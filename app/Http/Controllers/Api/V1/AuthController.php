@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class AuthController extends BaseApiController
 {
@@ -23,7 +24,11 @@ class AuthController extends BaseApiController
         $validated['role'] = User::ROLE_CUSTOMER;
 
         $user = User::query()->create($validated);
-        $token = $user->createToken('mobile-auth')->plainTextToken;
+        try {
+            $token = $user->createToken('mobile-auth')->plainTextToken;
+        } catch (Throwable) {
+            return $this->error('Authentication service is temporarily unavailable. Please try again shortly.', [], 503);
+        }
 
         return $this->success([
             'user'  => $user,
@@ -51,7 +56,11 @@ class AuthController extends BaseApiController
             return $this->error('Your account has been suspended. Please contact support.', [], 403);
         }
 
-        $token = $user->createToken('mobile-auth')->plainTextToken;
+        try {
+            $token = $user->createToken('mobile-auth')->plainTextToken;
+        } catch (Throwable) {
+            return $this->error('Authentication service is temporarily unavailable. Please try again shortly.', [], 503);
+        }
 
         return $this->success([
             'user'  => $user,
