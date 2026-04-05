@@ -78,7 +78,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/wallet/transactions', [WalletController::class, 'transactions']);
 
         // Pre-booking chat
-        Route::get('/chat/{listingId}/messages', [ChatController::class, 'history']);
+        Route::get('/chat/{listingId}/messages', [ChatController::class, 'history'])->whereUuid('listingId');
         Route::post('/chat/messages/text', [ChatController::class, 'sendText']);
         Route::post('/chat/messages/voice', [ChatController::class, 'sendVoice']);
 
@@ -89,10 +89,30 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/sme/sales-reports', [SmeController::class, 'reportSales']);
 
         // Admin-only routes
-        Route::prefix('admin')->middleware('admin')->group(function (): void {
+        Route::prefix('admin')->middleware(['admin', 'throttle:admin'])->group(function (): void {
             Route::get('/stats', [AdminController::class, 'stats']);
+            Route::get('/god-view', [AdminController::class, 'godView']);
+
             Route::get('/users', [AdminController::class, 'users']);
-            Route::put('/users/{userId}', [AdminController::class, 'updateUser']);
+            Route::put('/users/{userId}', [AdminController::class, 'updateUser'])->whereUuid('userId');
+
+            Route::get('/listings', [AdminController::class, 'listings']);
+            Route::patch('/listings/{listingId}', [AdminController::class, 'updateListing'])->whereUuid('listingId');
+            Route::delete('/listings/{listingId}', [AdminController::class, 'deleteListing'])->whereUuid('listingId');
+
+            Route::get('/bookings', [AdminController::class, 'bookings']);
+            Route::patch('/bookings/{bookingId}', [AdminController::class, 'updateBooking'])->whereUuid('bookingId');
+
+            Route::get('/social/posts', [AdminController::class, 'socialPosts']);
+            Route::patch('/social/posts/{postId}', [AdminController::class, 'updateSocialPost'])->whereUuid('postId');
+            Route::delete('/social/posts/{postId}', [AdminController::class, 'deleteSocialPost'])->whereUuid('postId');
+
+            Route::get('/payments', [AdminController::class, 'payments']);
+
+            Route::get('/configs', [AdminController::class, 'configs']);
+            Route::put('/configs/vertical-fees/{vertical}', [AdminController::class, 'upsertVerticalFee']);
+            Route::put('/configs/platform/{key}', [AdminController::class, 'upsertPlatformSetting']);
+
             Route::post('/cashback/{cashbackRecord}/credit', [CashbackController::class, 'credit']);
         });
 

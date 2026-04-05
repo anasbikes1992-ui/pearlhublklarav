@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Append CORS headers for all API responses.
         $middleware->appendToGroup('api', \Illuminate\Http\Middleware\HandleCors::class);
+        
+        // Append security headers for all API responses.
+        $middleware->appendToGroup('api', \App\Http\Middleware\SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Return JSON for API routes on un-handled exceptions.
@@ -45,6 +48,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Public search endpoints can be called anonymously, but should be throttled.
         RateLimiter::for('search', function (Request $request) {
             return Limit::perMinute(30)->by($request->user()?->id ?? $request->ip());
+        });
+
+        // Admin endpoints should be strictly bounded per authenticated admin.
+        RateLimiter::for('admin', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?? $request->ip());
         });
 
         // Promo validation is abuse-prone and should have a stricter budget.

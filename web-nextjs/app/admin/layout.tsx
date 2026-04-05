@@ -7,6 +7,8 @@ import { useAuth } from '../../components/auth-context';
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
+  { href: '/admin/god-view', label: 'God View', icon: '👁️' },
+  { href: '/admin/configs', label: 'Configs', icon: '⚙️' },
   { href: '/admin/users', label: 'Users', icon: '👥' },
   { href: '/admin/listings', label: 'Listings', icon: '🏘️' },
   { href: '/admin/bookings', label: 'Bookings', icon: '📅' },
