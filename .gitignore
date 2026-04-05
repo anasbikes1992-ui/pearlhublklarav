@@ -26,7 +26,6 @@ yarn-error.log
 build-output.txt
 build-log.txt
 build-result.txt
-composer.lock
 check_env.php
 
 # Next.js
