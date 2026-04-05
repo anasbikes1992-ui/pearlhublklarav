@@ -1,15 +1,15 @@
 [phases.setup]
 nixPkgs = [
-  "php82",
-  "php82Extensions.pdo_mysql",
-  "php82Extensions.redis",
-  "php82Extensions.gd",
-  "php82Extensions.zip",
-  "php82Extensions.bcmath",
-  "php82Extensions.intl",
-  "php82Extensions.mbstring",
-  "php82Extensions.xml",
-  "php82Extensions.curl",
+  "php84",
+  "php84Extensions.pdo_mysql",
+  "php84Extensions.redis",
+  "php84Extensions.gd",
+  "php84Extensions.zip",
+  "php84Extensions.bcmath",
+  "php84Extensions.intl",
+  "php84Extensions.mbstring",
+  "php84Extensions.xml",
+  "php84Extensions.curl",
   "nodejs_22",
 ]
 
