@@ -10,7 +10,7 @@ nixPkgs = [
   "php82Extensions.mbstring",
   "php82Extensions.xml",
   "php82Extensions.curl",
-  "nodejs_20",
+  # "nodejs_20",  # Commenting out Node.js to maintain a PHP-only environment
 ]
 
 [phases.install]
