@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
+import { SERVER_API_BASE } from '@/lib/env';
 
-// Prefer the private server-side var; fall back to the public one for local dev.
-const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
+const API_BASE = SERVER_API_BASE;
 
 const DEMO_ROLES: Record<string, string> = { admin: 'admin', provider: 'provider', customer: 'customer' };
 

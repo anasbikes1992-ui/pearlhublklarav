@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
+import { SERVER_API_BASE } from '@/lib/env';
 
-const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
+const API_BASE = SERVER_API_BASE;
 
 function extractToken(req: NextRequest): string | null {
   const cookieHeader = req.headers.get('cookie') ?? '';

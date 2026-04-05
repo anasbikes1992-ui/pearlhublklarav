@@ -20,8 +20,8 @@ return [
     ],
 
     'allowed_origins_patterns' => [
-        // Allow all Vercel preview URLs for the project.
-        '#^https://pearlhub.*\.vercel\.app$#',
+        // Allow Vercel production and preview URLs.
+        '#^https://.*\.vercel\.app$#',
     ],
 
     'allowed_headers' => ['*'],

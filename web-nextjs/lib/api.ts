@@ -1,4 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
+import { PUBLIC_API_BASE } from './env';
+
+const BASE_URL = PUBLIC_API_BASE;
 export const API_BASE = BASE_URL;
 
 export type Vertical = 'property' | 'stay' | 'vehicle' | 'event' | 'sme' | 'experience' | 'taxi';

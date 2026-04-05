@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { PUBLIC_API_BASE } from '@/lib/env';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard — PearlHub',
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
 
 export const revalidate = 30;
 
-const ADMIN_API = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.pearlhub.lk';
+const ADMIN_API = PUBLIC_API_BASE;
 
 type AdminStats = {
   total_users: number;
@@ -25,7 +26,7 @@ type RecentListing = { id: string; title: string; vertical: string; status: stri
 // Fetch with auth cookie forwarded from server-side request
 async function fetchAdminStats(cookie: string): Promise<AdminStats | null> {
   try {
-    const res = await fetch(`${ADMIN_API}/api/v1/admin/stats`, {
+    const res = await fetch(`${ADMIN_API}/admin/stats`, {
       headers: { Cookie: cookie, Accept: 'application/json' },
       next: { revalidate: 30 },
     });
@@ -39,7 +40,7 @@ async function fetchAdminStats(cookie: string): Promise<AdminStats | null> {
 
 async function fetchRecentUsers(cookie: string): Promise<RecentUser[]> {
   try {
-    const res = await fetch(`${ADMIN_API}/api/v1/admin/users?page=1`, {
+    const res = await fetch(`${ADMIN_API}/admin/users?page=1`, {
       headers: { Cookie: cookie, Accept: 'application/json' },
       next: { revalidate: 30 },
     });
@@ -53,7 +54,7 @@ async function fetchRecentUsers(cookie: string): Promise<RecentUser[]> {
 
 async function fetchRecentListings(cookie: string): Promise<RecentListing[]> {
   try {
-    const res = await fetch(`${ADMIN_API}/api/v1/listings?per_page=5`, {
+    const res = await fetch(`${ADMIN_API}/listings?per_page=5`, {
       headers: { Cookie: cookie, Accept: 'application/json' },
       next: { revalidate: 30 },
     });

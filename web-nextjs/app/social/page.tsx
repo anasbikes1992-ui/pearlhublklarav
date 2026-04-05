@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { PUBLIC_API_BASE } from '@/lib/env';
 
 export const metadata: Metadata = {
   title: 'Social Community — PearlHub',
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-const SOCIAL_API = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.pearlhub.lk';
+const SOCIAL_API = PUBLIC_API_BASE;
 
 type Post = {
   id: string;
@@ -136,7 +137,7 @@ const FALLBACK_POSTS: Post[] = [
 
 async function getFeed(vertical?: string): Promise<Post[]> {
   try {
-    const url = new URL(`${SOCIAL_API}/api/v1/social/feed`);
+    const url = new URL(`${SOCIAL_API}/social/feed`);
     if (vertical) url.searchParams.set('vertical', vertical);
     const res = await fetch(url.toString(), { next: { revalidate: 60 } });
     if (!res.ok) return FALLBACK_POSTS;

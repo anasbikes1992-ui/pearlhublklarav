@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SERVER_API_BASE } from '@/lib/env';
 
-// Prefer the private server-side var; fall back to the public one for local dev.
-const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
+const API_BASE = SERVER_API_BASE;
 
 // Demo users — active when the real backend is unreachable (e.g. Vercel preview without a deployed API)
 const DEMO_USERS: Record<string, { email: string; password: string; name: string; role: string }> = {

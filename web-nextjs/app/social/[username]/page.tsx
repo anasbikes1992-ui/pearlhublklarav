@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { PUBLIC_API_BASE } from '@/lib/env';
 
 export const revalidate = 120;
 
-const SOCIAL_API = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.pearlhub.lk';
+const SOCIAL_API = PUBLIC_API_BASE;
 
 type PostSummary = {
   id: string;
@@ -39,7 +40,7 @@ export async function generateMetadata({
 
 async function getProfile(userId: string): Promise<ProfileData | null> {
   try {
-    const res = await fetch(`${SOCIAL_API}/api/v1/social/users/${userId}/profile`, {
+    const res = await fetch(`${SOCIAL_API}/social/users/${userId}/profile`, {
       next: { revalidate: 120 },
     });
     if (!res.ok) return null;
