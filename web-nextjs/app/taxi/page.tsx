@@ -1,60 +1,266 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
+import { useAuth } from '../../components/auth-context';
+
+const CITIES = [
+  'Colombo', 'Kandy', 'Galle', 'Negombo', 'Matara',
+  'Jaffna', 'Trincomalee', 'Batticaloa', 'Nuwara Eliya',
+  'Anuradhapura', 'Polonnaruwa', 'Badulla', 'Ratnapura',
+  'Kurunegala', 'Puttalam', 'Vavuniya',
+];
+
+const CITY_COORDS: Record<string, [number, number]> = {
+  'Colombo':      [6.9271,  79.8612],
+  'Kandy':        [7.2906,  80.6337],
+  'Galle':        [6.0535,  80.2210],
+  'Negombo':      [7.2081,  79.8358],
+  'Matara':       [5.9549,  80.5550],
+  'Jaffna':       [9.6615,  80.0255],
+  'Trincomalee':  [8.5874,  81.2152],
+  'Batticaloa':   [7.7172,  81.6956],
+  'Nuwara Eliya': [6.9597,  80.7891],
+  'Anuradhapura': [8.3114,  80.4037],
+  'Polonnaruwa':  [7.9403,  81.0188],
+  'Badulla':      [6.9934,  81.0550],
+  'Ratnapura':    [6.6828,  80.3992],
+  'Kurunegala':   [7.4818,  80.3609],
+  'Puttalam':     [8.0362,  79.8284],
+  'Vavuniya':     [8.7514,  80.4977],
+};
+
+const DEMO_DRIVERS = [
+  { id: 'd1', name: 'Kasun Perera',     vehicle: 'Toyota Aqua', plate: 'WP CAA-1234', rating: 4.9, trips: 342, eta: '3 min', avatar: '🧑' },
+  { id: 'd2', name: 'Nuwan Silva',      vehicle: 'Suzuki Alto', plate: 'SP CAB-5678', rating: 4.8, trips: 218, eta: '5 min', avatar: '👨' },
+  { id: 'd3', name: 'Chamara Fernando', vehicle: 'Honda Fit',   plate: 'CP CAC-9012', rating: 4.7, trips: 185, eta: '8 min', avatar: '🧔' },
+];
+
+type Driver = (typeof DEMO_DRIVERS)[number];
+
+type BookedRide = {
+  id: string;
+  pickup_city: string;
+  dropoff_city: string;
+  fare_estimate: number;
+  driver: Driver;
+  status: string;
+  created_at: string;
+};
+
+function estimateFare(from: string, to: string): number {
+  if (from === to) return 500;
+  const fromCoords = CITY_COORDS[from] ?? [6.9271, 79.8612];
+  const toCoords   = CITY_COORDS[to]   ?? [7.2906, 80.6337];
+  const dlat = fromCoords[0] - toCoords[0];
+  const dlng = fromCoords[1] - toCoords[1];
+  const distKm = Math.sqrt(dlat * dlat + dlng * dlng) * 111;
+  return Math.round((350 + distKm * 35) / 50) * 50;
+}
 
 export default function TaxiPage() {
+  const { user } = useAuth();
+  const [pickup,         setPickup]         = useState('Colombo');
+  const [dropoff,        setDropoff]        = useState('Kandy');
+  const [selectedDriver, setSelectedDriver] = useState(DEMO_DRIVERS[0].id);
+  const [submitting,     setSubmitting]     = useState(false);
+  const [error,          setError]          = useState('');
+  const [bookedRide,     setBookedRide]     = useState<BookedRide | null>(null);
+
+  const fare = estimateFare(pickup, dropoff);
+
+  const handleBook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pickup === dropoff) {
+      setError('Pickup and dropoff locations must be different.');
+      return;
+    }
+    setError('');
+    setSubmitting(true);
+    try {
+      const fromCoords = CITY_COORDS[pickup] ?? [6.9271, 79.8612];
+      const toCoords   = CITY_COORDS[dropoff] ?? [7.2906, 80.6337];
+      const res = await fetch('/api/taxi-rides', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          pickup_city:       pickup,
+          dropoff_city:      dropoff,
+          pickup_latitude:   fromCoords[0],
+          pickup_longitude:  fromCoords[1],
+          dropoff_latitude:  toCoords[0],
+          dropoff_longitude: toCoords[1],
+          driver_id:         selectedDriver,
+          fare_estimate:     fare,
+        }),
+      });
+      const data = (await res.json()) as { data?: BookedRide; message?: string };
+      if (!res.ok) throw new Error(data.message ?? 'Booking failed');
+      const ride = data.data;
+      if (!ride) throw new Error('Invalid response from server');
+      if (!ride.driver) {
+        ride.driver = DEMO_DRIVERS.find((d) => d.id === selectedDriver) ?? DEMO_DRIVERS[0];
+      }
+      setBookedRide(ride);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Booking failed');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /* ── Confirmed booking view ── */
+  if (bookedRide) {
+    return (
+      <main className="page-shell taxi-page">
+        <section className="taxi-confirmation">
+          <div className="taxi-confirm-icon">🚖</div>
+          <h1>Ride Confirmed!</h1>
+          <p className="taxi-confirm-sub">Your Pearl Taxi is on the way. Sit tight!</p>
+
+          <div className="taxi-confirm-card">
+            <div className="taxi-route-display">
+              <span className="taxi-route-pin">📍</span>
+              <div className="taxi-route-cities">
+                <span>{bookedRide.pickup_city}</span>
+                <span className="taxi-route-arrow">→</span>
+                <span>{bookedRide.dropoff_city}</span>
+              </div>
+              <span className="taxi-route-pin">🏁</span>
+            </div>
+
+            <div className="taxi-confirm-meta">
+              <div className="taxi-confirm-row">
+                <span className="taxi-confirm-label">Ride ID</span>
+                <span className="taxi-confirm-val taxi-confirm-val--mono">{bookedRide.id.slice(0, 20)}…</span>
+              </div>
+              <div className="taxi-confirm-row">
+                <span className="taxi-confirm-label">Fare estimate</span>
+                <span className="taxi-confirm-val taxi-confirm-val--fare">LKR {bookedRide.fare_estimate.toLocaleString()}</span>
+              </div>
+              <div className="taxi-confirm-row">
+                <span className="taxi-confirm-label">Status</span>
+                <span className="taxi-status-badge">{bookedRide.status}</span>
+              </div>
+            </div>
+
+            <div className="taxi-driver-summary">
+              <div className="taxi-driver-avatar">{bookedRide.driver.avatar}</div>
+              <div className="taxi-driver-summary__info">
+                <p className="taxi-driver-name">{bookedRide.driver.name}</p>
+                <p className="taxi-driver-detail">{bookedRide.driver.vehicle} · {bookedRide.driver.plate}</p>
+                <p className="taxi-driver-detail">ETA: {bookedRide.driver.eta}</p>
+              </div>
+            </div>
+          </div>
+
+          <button className="btn btn-secondary" onClick={() => setBookedRide(null)}>
+            Book another ride
+          </button>
+        </section>
+      </main>
+    );
+  }
+
+  /* ── Auth loading state ── */
+  if (user === undefined) {
+    return (
+      <main className="page-shell taxi-page">
+        <div className="taxi-loading">Loading…</div>
+      </main>
+    );
+  }
+
+  /* ── Unauthenticated view ── */
+  if (user === null) {
+    return (
+      <main className="page-shell taxi-page">
+        <section className="taxi-hero">
+          <div className="hero-badge">🚕 Pearl Taxi</div>
+          <h1>Book a certified Pearl driver</h1>
+          <p>Sign in or create an account to book a ride across Sri Lanka.</p>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" href="/auth/login">Sign in</Link>
+            <Link className="btn btn-secondary" href="/auth/register">Create account</Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  /* ── Authenticated booking view ── */
   return (
-    <main className="page-shell catalog-page">
-      <section className="page-intro page-intro--taxi">
-        <p className="eyebrow">Pearl Taxi</p>
-        <h1>Real-time ride matching across Sri Lanka — built for luxury travel.</h1>
+    <main className="page-shell taxi-page">
+      <section className="taxi-hero">
+        <div className="hero-badge">🚕 Pearl Taxi</div>
+        <h1>Book your ride</h1>
         <p>
-          Book a certified driver instantly or schedule rides in advance. Live GPS tracking, fare transparency, and Pearl-verified
-          drivers only — available via the PearlHub Customer app.
+          Welcome, <strong>{user.full_name ?? user.name}</strong>. Pearl-verified drivers,
+          live fare estimate, island-wide coverage.
         </p>
       </section>
 
-      <section className="taxi-how-it-works">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">How it works</p>
-            <h2>From tap to arrival in minutes.</h2>
-          </div>
-        </div>
-        <div className="taxi-steps">
-          <div className="taxi-step">
-            <span className="taxi-step__num">01</span>
-            <h3>Open the app</h3>
-            <p>Launch PearlHub Customer, tap &ldquo;Pearl Taxi,&rdquo; and share your pickup location.</p>
-          </div>
-          <div className="taxi-step">
-            <span className="taxi-step__num">02</span>
-            <h3>Instant driver match</h3>
-            <p>Our matching engine finds the nearest Pearl-verified driver in real time via Laravel Reverb WebSockets.</p>
-          </div>
-          <div className="taxi-step">
-            <span className="taxi-step__num">03</span>
-            <h3>Track live</h3>
-            <p>Watch your driver on the map. Get ETA updates and arrival alerts — even on spotty Sri Lankan data connections.</p>
-          </div>
-          <div className="taxi-step">
-            <span className="taxi-step__num">04</span>
-            <h3>Pay securely</h3>
-            <p>PayHere or WebXPay integration. Rate your journey and earn PearlPoints redeemable on stays and properties.</p>
-          </div>
-        </div>
-      </section>
+      <div className="taxi-layout">
+        {/* ── Trip form ── */}
+        <div className="taxi-form-panel">
+          <h2 className="taxi-panel-heading">Trip details</h2>
+          <form className="taxi-form" onSubmit={handleBook}>
+            {error && <div className="auth-error">{error}</div>}
 
-      <section className="taxi-cta-block">
-        <h2>Download the PearlHub Customer app</h2>
-        <p>Pearl Taxi is available exclusively in the mobile app. Web booking is coming soon.</p>
-        <div className="hero-cta-row">
-          <Link className="btn btn-primary" href="/auth/register">
-            Create account
-          </Link>
-          <Link className="btn btn-secondary" href="/">
-            Back to marketplace
-          </Link>
+            <div className="auth-field">
+              <label htmlFor="pickup">Pickup city</label>
+              <select id="pickup" value={pickup} onChange={(e) => setPickup(e.target.value)}>
+                {CITIES.map((c) => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div className="auth-field">
+              <label htmlFor="dropoff">Dropoff city</label>
+              <select id="dropoff" value={dropoff} onChange={(e) => setDropoff(e.target.value)}>
+                {CITIES.map((c) => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div className="taxi-fare-estimate">
+              <span>Estimated fare</span>
+              <strong>LKR {fare.toLocaleString()}</strong>
+            </div>
+
+            <button className="btn btn-primary btn-full" type="submit" disabled={submitting}>
+              {submitting ? 'Booking…' : 'Book ride'}
+            </button>
+          </form>
         </div>
-      </section>
+
+        {/* ── Driver selection ── */}
+        <div className="taxi-drivers-panel">
+          <h2 className="taxi-panel-heading">Available drivers</h2>
+          <div className="taxi-drivers-list">
+            {DEMO_DRIVERS.map((driver) => (
+              <button
+                key={driver.id}
+                type="button"
+                className={`taxi-driver-card${selectedDriver === driver.id ? ' taxi-driver-card--selected' : ''}`}
+                onClick={() => setSelectedDriver(driver.id)}
+              >
+                <div className="taxi-driver-card__avatar">{driver.avatar}</div>
+                <div className="taxi-driver-card__info">
+                  <p className="taxi-driver-card__name">{driver.name}</p>
+                  <p className="taxi-driver-card__vehicle">{driver.vehicle}</p>
+                  <p className="taxi-driver-card__plate">{driver.plate}</p>
+                </div>
+                <div className="taxi-driver-card__stats">
+                  <div className="taxi-driver-card__rating">★ {driver.rating}</div>
+                  <div className="taxi-driver-card__eta">{driver.eta}</div>
+                  <div className="taxi-driver-card__trips">{driver.trips} trips</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
+

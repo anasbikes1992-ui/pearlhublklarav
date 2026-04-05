@@ -3924,3 +3924,344 @@ footer a:hover {
 .admin-access-denied h2 { margin-bottom: 0.5rem; }
 .admin-access-denied p  { color: var(--text-muted); margin-bottom: 1.5rem; }
 
+
+/* ============= TAXI BOOKING PAGE ============= */
+
+.taxi-page {
+  padding: 0 var(--sp-md);
+}
+
+.taxi-hero {
+  text-align: center;
+  padding: var(--sp-3xl) var(--sp-md) var(--sp-2xl);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.taxi-hero h1 {
+  background: linear-gradient(135deg, var(--text-white) 0%, var(--accent-teal) 50%, var(--accent-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--sp-md);
+}
+
+.taxi-hero p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  margin-bottom: var(--sp-xl);
+}
+
+.taxi-loading {
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* ── Layout: form + drivers side by side ── */
+.taxi-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-xl);
+  max-width: 960px;
+  margin: 0 auto var(--sp-3xl);
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+@media (min-width: 768px) {
+  .taxi-layout {
+    grid-template-columns: 340px 1fr;
+    align-items: start;
+  }
+}
+
+.taxi-panel-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: var(--sp-lg);
+  padding-bottom: var(--sp-sm);
+  border-bottom: 1px solid rgba(var(--accent-teal-rgb), 0.12);
+}
+
+/* ── Form panel ── */
+.taxi-form-panel {
+  background: var(--dark-card);
+  border: 1px solid rgba(var(--accent-teal-rgb), 0.08);
+  border-radius: var(--radius-2xl);
+  padding: var(--sp-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.taxi-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+.taxi-fare-estimate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(var(--accent-teal-rgb), 0.06);
+  border: 1px solid rgba(var(--accent-teal-rgb), 0.15);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-sm) var(--sp-md);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.taxi-fare-estimate strong {
+  color: var(--accent-teal);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* ── Drivers panel ── */
+.taxi-drivers-panel {
+  background: var(--dark-card);
+  border: 1px solid rgba(var(--accent-teal-rgb), 0.08);
+  border-radius: var(--radius-2xl);
+  padding: var(--sp-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.taxi-drivers-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.taxi-driver-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  background: var(--dark-secondary);
+  border: 2px solid transparent;
+  border-radius: var(--radius-xl);
+  padding: var(--sp-md);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.taxi-driver-card:hover {
+  border-color: rgba(var(--accent-teal-rgb), 0.3);
+  background: rgba(var(--accent-teal-rgb), 0.04);
+}
+
+.taxi-driver-card--selected {
+  border-color: var(--accent-teal) !important;
+  background: rgba(var(--accent-teal-rgb), 0.08) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-teal-rgb), 0.2), var(--shadow-glow-teal);
+}
+
+.taxi-driver-card__avatar {
+  font-size: 2.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.taxi-driver-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.taxi-driver-card__name {
+  font-weight: 700;
+  color: var(--text-white);
+  margin: 0 0 2px;
+  font-size: 0.95rem;
+}
+
+.taxi-driver-card__vehicle {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0 0 2px;
+}
+
+.taxi-driver-card__plate {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-family: monospace;
+  margin: 0;
+}
+
+.taxi-driver-card__stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.taxi-driver-card__rating {
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.taxi-driver-card__eta {
+  color: var(--accent-teal);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.taxi-driver-card__trips {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* ── Confirmation screen ── */
+.taxi-confirmation {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: var(--sp-3xl) var(--sp-md);
+  text-align: center;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.taxi-confirm-icon {
+  font-size: 4rem;
+  margin-bottom: var(--sp-md);
+  animation: scaleIn 0.5s ease-out;
+}
+
+.taxi-confirmation h1 {
+  background: linear-gradient(135deg, var(--text-white) 0%, var(--accent-teal) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--sp-sm);
+}
+
+.taxi-confirm-sub {
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-xl);
+}
+
+.taxi-confirm-card {
+  background: var(--dark-card);
+  border: 1px solid rgba(var(--accent-teal-rgb), 0.15);
+  border-radius: var(--radius-2xl);
+  padding: var(--sp-xl);
+  margin-bottom: var(--sp-xl);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-teal);
+  text-align: left;
+}
+
+.taxi-route-display {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-lg);
+  padding-bottom: var(--sp-lg);
+  border-bottom: 1px solid rgba(var(--border-color), 0.3);
+}
+
+.taxi-route-pin {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.taxi-route-cities {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-white);
+  flex-wrap: wrap;
+}
+
+.taxi-route-arrow {
+  color: var(--accent-teal);
+  font-size: 1.2rem;
+}
+
+.taxi-confirm-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-lg);
+  padding-bottom: var(--sp-lg);
+  border-bottom: 1px solid rgba(var(--border-color), 0.3);
+}
+
+.taxi-confirm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-md);
+}
+
+.taxi-confirm-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.taxi-confirm-val {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.taxi-confirm-val--mono {
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.taxi-confirm-val--fare {
+  color: var(--accent-teal);
+  font-size: 1.1rem;
+}
+
+.taxi-status-badge {
+  background: rgba(var(--accent-teal-rgb), 0.12);
+  color: var(--accent-teal);
+  border: 1px solid rgba(var(--accent-teal-rgb), 0.3);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.taxi-driver-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+}
+
+.taxi-driver-avatar {
+  font-size: 2.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.taxi-driver-summary__info {
+  flex: 1;
+}
+
+.taxi-driver-name {
+  font-weight: 700;
+  color: var(--text-white);
+  margin: 0 0 4px;
+}
+
+.taxi-driver-detail {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0 0 2px;
+}

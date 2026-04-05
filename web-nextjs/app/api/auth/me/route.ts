@@ -19,15 +19,21 @@ export async function GET(req: Request) {
     const parts = token.split('_');
     const role = parts[1];
     const emailB64 = parts.slice(2).join('_');
-    const email = Buffer.from(emailB64, 'base64').toString('utf8');
+    const decoded = Buffer.from(emailB64, 'base64').toString('utf8');
+    // Support both legacy "email" tokens and newer "email|Full Name" tokens (from demo registration).
+    const pipeIdx = decoded.indexOf('|');
+    const email = pipeIdx > -1 ? decoded.slice(0, pipeIdx) : decoded;
+    const nameFromToken = pipeIdx > -1 ? decoded.slice(pipeIdx + 1) : null;
     const nameMap: Record<string, string> = {
       'anasbikes1992@gmail.com': 'Anas Admin',
     };
     if (DEMO_ROLES[role] && email.includes('@')) {
+      const resolvedName =
+        nameFromToken ?? nameMap[email] ?? `${role.charAt(0).toUpperCase()}${role.slice(1)} User`;
       const user = {
         id: `demo-${role}`,
-        full_name: nameMap[email] ?? `${role.charAt(0).toUpperCase()}${role.slice(1)} User`,
-        name:      nameMap[email] ?? `${role.charAt(0).toUpperCase()}${role.slice(1)} User`,
+        full_name: resolvedName,
+        name: resolvedName,
         email,
         role,
       };
