@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '../../components/auth-context';
+import { DEMO_DRIVERS, type DemoDriver } from '../../lib/taxi-demo-data';
 
 const CITIES = [
   'Colombo', 'Kandy', 'Galle', 'Negombo', 'Matara',
@@ -30,23 +31,17 @@ const CITY_COORDS: Record<string, [number, number]> = {
   'Vavuniya':     [8.7514,  80.4977],
 };
 
-const DEMO_DRIVERS = [
-  { id: 'd1', name: 'Kasun Perera',     vehicle: 'Toyota Aqua', plate: 'WP CAA-1234', rating: 4.9, trips: 342, eta: '3 min', avatar: '🧑' },
-  { id: 'd2', name: 'Nuwan Silva',      vehicle: 'Suzuki Alto', plate: 'SP CAB-5678', rating: 4.8, trips: 218, eta: '5 min', avatar: '👨' },
-  { id: 'd3', name: 'Chamara Fernando', vehicle: 'Honda Fit',   plate: 'CP CAC-9012', rating: 4.7, trips: 185, eta: '8 min', avatar: '🧔' },
-];
-
-type Driver = (typeof DEMO_DRIVERS)[number];
-
 type BookedRide = {
   id: string;
   pickup_city: string;
   dropoff_city: string;
   fare_estimate: number;
-  driver: Driver;
+  driver: DemoDriver;
   status: string;
   created_at: string;
 };
+
+const DEMO_DRIVERS_LIST = DEMO_DRIVERS;
 
 function estimateFare(from: string, to: string): number {
   if (from === to) return 500;
@@ -62,7 +57,7 @@ export default function TaxiPage() {
   const { user } = useAuth();
   const [pickup,         setPickup]         = useState('Colombo');
   const [dropoff,        setDropoff]        = useState('Kandy');
-  const [selectedDriver, setSelectedDriver] = useState(DEMO_DRIVERS[0].id);
+  const [selectedDriver, setSelectedDriver] = useState<string>(DEMO_DRIVERS_LIST[0].id);
   const [submitting,     setSubmitting]     = useState(false);
   const [error,          setError]          = useState('');
   const [bookedRide,     setBookedRide]     = useState<BookedRide | null>(null);
@@ -100,7 +95,7 @@ export default function TaxiPage() {
       const ride = data.data;
       if (!ride) throw new Error('Invalid response from server');
       if (!ride.driver) {
-        ride.driver = DEMO_DRIVERS.find((d) => d.id === selectedDriver) ?? DEMO_DRIVERS[0];
+        ride.driver = DEMO_DRIVERS_LIST.find((d) => d.id === selectedDriver) ?? DEMO_DRIVERS_LIST[0];
       }
       setBookedRide(ride);
     } catch (err) {
@@ -237,7 +232,7 @@ export default function TaxiPage() {
         <div className="taxi-drivers-panel">
           <h2 className="taxi-panel-heading">Available drivers</h2>
           <div className="taxi-drivers-list">
-            {DEMO_DRIVERS.map((driver) => (
+            {DEMO_DRIVERS_LIST.map((driver) => (
               <button
                 key={driver.id}
                 type="button"

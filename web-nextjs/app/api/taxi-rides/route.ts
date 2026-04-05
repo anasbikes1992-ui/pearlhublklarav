@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SERVER_API_BASE } from '@/lib/env';
-
-const API_BASE = SERVER_API_BASE;
-
-const DEMO_DRIVERS = [
-  { id: 'd1', name: 'Kasun Perera',     vehicle: 'Toyota Aqua', plate: 'WP CAA-1234', rating: 4.9, trips: 342, eta: '3 min', avatar: '🧑' },
-  { id: 'd2', name: 'Nuwan Silva',      vehicle: 'Suzuki Alto', plate: 'SP CAB-5678', rating: 4.8, trips: 218, eta: '5 min', avatar: '👨' },
-  { id: 'd3', name: 'Chamara Fernando', vehicle: 'Honda Fit',   plate: 'CP CAC-9012', rating: 4.7, trips: 185, eta: '8 min', avatar: '🧔' },
-];
+import { DEMO_DRIVERS } from '@/lib/taxi-demo-data';
 
 function extractToken(req: NextRequest): string | null {
   const cookieHeader = req.headers.get('cookie') ?? '';
@@ -24,7 +17,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const laravelRes = await fetch(`${API_BASE}/taxi-rides`, {
+    const laravelRes = await fetch(`${SERVER_API_BASE}/taxi-rides`, {
       headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
     });
     const data = (await laravelRes.json()) as unknown;
@@ -47,6 +40,19 @@ export async function POST(req: NextRequest) {
 
   if (token.startsWith('demo_')) {
     const b = body as Record<string, unknown>;
+
+    // Server-side enforcement: pickup and dropoff must differ
+    if (
+      typeof b.pickup_city === 'string' &&
+      typeof b.dropoff_city === 'string' &&
+      b.pickup_city === b.dropoff_city
+    ) {
+      return NextResponse.json(
+        { message: 'Pickup and dropoff cities must be different' },
+        { status: 422 }
+      );
+    }
+
     const driverId = typeof b.driver_id === 'string' ? b.driver_id : 'd1';
     const driver = DEMO_DRIVERS.find((d) => d.id === driverId) ?? DEMO_DRIVERS[0];
     const ride = {
@@ -66,7 +72,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const laravelRes = await fetch(`${API_BASE}/taxi-rides`, {
+    const laravelRes = await fetch(`${SERVER_API_BASE}/taxi-rides`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(body),
@@ -77,3 +83,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Backend unreachable' }, { status: 503 });
   }
 }
+

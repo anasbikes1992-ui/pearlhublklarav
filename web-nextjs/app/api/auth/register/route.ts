@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
   // Demo fallback — triggers when the real API is unreachable or failing with 5xx.
   if (backendUnavailable) {
     const { full_name, email, password } = body as { full_name?: string; email?: string; password?: string };
-    if (!email || !email.includes('@') || !password || password.length < 8) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email) || !password || password.length < 8) {
       return NextResponse.json(
         { message: 'Valid email and password (min 8 characters) are required' },
         { status: 422 }

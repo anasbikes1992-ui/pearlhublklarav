@@ -16,28 +16,32 @@ export async function GET(req: Request) {
 
   // Resolve demo tokens without hitting the backend
   if (token.startsWith('demo_')) {
-    const parts = token.split('_');
-    const role = parts[1];
-    const emailB64 = parts.slice(2).join('_');
-    const decoded = Buffer.from(emailB64, 'base64').toString('utf8');
-    // Support both legacy "email" tokens and newer "email|Full Name" tokens (from demo registration).
-    const pipeIdx = decoded.indexOf('|');
-    const email = pipeIdx > -1 ? decoded.slice(0, pipeIdx) : decoded;
-    const nameFromToken = pipeIdx > -1 ? decoded.slice(pipeIdx + 1) : null;
-    const nameMap: Record<string, string> = {
-      'anasbikes1992@gmail.com': 'Anas Admin',
-    };
-    if (DEMO_ROLES[role] && email.includes('@')) {
-      const resolvedName =
-        nameFromToken ?? nameMap[email] ?? `${role.charAt(0).toUpperCase()}${role.slice(1)} User`;
-      const user = {
-        id: `demo-${role}`,
-        full_name: resolvedName,
-        name: resolvedName,
-        email,
-        role,
+    try {
+      const parts = token.split('_');
+      const role = parts[1];
+      const emailB64 = parts.slice(2).join('_');
+      const decoded = Buffer.from(emailB64, 'base64').toString('utf8');
+      // Support both legacy "email" tokens and newer "email|Full Name" tokens (from demo registration).
+      const pipeIdx = decoded.indexOf('|');
+      const email = pipeIdx > -1 ? decoded.slice(0, pipeIdx) : decoded;
+      const nameFromToken = pipeIdx > -1 ? decoded.slice(pipeIdx + 1) : null;
+      const nameMap: Record<string, string> = {
+        'anasbikes1992@gmail.com': 'Anas Admin',
       };
-      return NextResponse.json({ user }, { status: 200 });
+      if (DEMO_ROLES[role] && email.includes('@')) {
+        const resolvedName =
+          nameFromToken ?? nameMap[email] ?? `${role.charAt(0).toUpperCase()}${role.slice(1)} User`;
+        const user = {
+          id: `demo-${role}`,
+          full_name: resolvedName,
+          name: resolvedName,
+          email,
+          role,
+        };
+        return NextResponse.json({ user }, { status: 200 });
+      }
+    } catch {
+      // Fall through to unauthenticated response if token decoding fails
     }
     return NextResponse.json({ message: 'Unauthenticated' }, { status: 401 });
   }
