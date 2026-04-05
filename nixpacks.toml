@@ -16,12 +16,11 @@ nixPkgs = [
 [phases.install]
 cmds = [
   "composer install --no-dev --optimize-autoloader --no-interaction --no-progress",
-  "npm ci --ignore-scripts",
 ]
 
 [phases.build]
 cmds = [
-    "npm run build 2>/dev/null || echo 'npm build skipped'",
+  "echo 'build phase: skipped'",
   ]
 
 [start]
