@@ -149,9 +149,9 @@ php artisan serve
 **Test credentials (seeded):**
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@pearlhub.lk | password |
-| Provider | provider@pearlhub.lk | password |
-| Customer | customer@pearlhub.lk | password |
+| Admin | admin@pearlhub.lk | secret123 |
+| Provider | provider1@pearlhub.lk | secret123 |
+| Customer | customer1@pearlhub.lk | secret123 |
 
 ### Web Frontend (Next.js)
 

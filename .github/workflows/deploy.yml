@@ -1,0 +1,35 @@
+name: Deploy To Coolify
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify deployment
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          COOLIFY_URL: http://84.247.149.182:8000
+          COOLIFY_APP_UUID: k3atnf4hmmc6gyjvuenzljk1
+        run: |
+          set -euo pipefail
+
+          response=$(curl --silent --show-error --location \
+            --request POST "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_APP_UUID}&force=false" \
+            --header "Authorization: Bearer ${COOLIFY_TOKEN}" \
+            --header "Accept: application/json")
+
+          echo "Coolify response: ${response}"
+
+          if ! echo "${response}" | grep -q "deployment queued"; then
+            echo "Deployment was not queued as expected."
+            exit 1
+          fi

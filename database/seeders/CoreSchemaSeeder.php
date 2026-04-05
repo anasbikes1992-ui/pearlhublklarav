@@ -27,7 +27,7 @@ class CoreSchemaSeeder extends Seeder
         ];
 
         foreach ($users as $index => $seedUser) {
-            $user = User::query()->firstOrCreate(
+            $user = User::query()->updateOrCreate(
                 ['email' => $seedUser['email']],
                 [
                     'full_name' => $seedUser['full_name'],
