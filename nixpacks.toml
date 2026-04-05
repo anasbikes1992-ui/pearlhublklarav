@@ -16,7 +16,7 @@ nixPkgs = [
 [phases.install]
 cmds = [
   "if ! command -v composer >/dev/null 2>&1; then curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer; fi",
-  "composer install --no-dev --optimize-autoloader --no-interaction --no-progress",
+  "php /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --no-progress",
   "npm ci --ignore-scripts",
 ]
 
