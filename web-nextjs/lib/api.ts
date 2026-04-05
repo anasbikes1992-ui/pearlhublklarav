@@ -429,19 +429,26 @@ export async function searchListings(query: string, vertical?: Vertical): Promis
 }
 
 export async function getFeaturedListings(vertical?: Vertical, limit = 3): Promise<ListingItem[]> {
-  const items = await fetchSearch(vertical);
-  return items.slice(0, limit);
+  try {
+    const items = await fetchSearch(vertical);
+    return items.slice(0, limit);
+  } catch {
+    return filterFallback(vertical).slice(0, limit);
+  }
 }
 
 export async function getListingsByCity(city: string, vertical: Vertical): Promise<ListingItem[]> {
-  const results = await fetchSearch(vertical, city);
-  return results;
+  try {
+    return await fetchSearch(vertical, city);
+  } catch {
+    return filterFallback(vertical, city);
+  }
 }
 
 export async function getListingBySlug(slug: string, vertical: Vertical = 'property'): Promise<ListingItem | null> {
   const apiItems = await getFeaturedListings(vertical, 50);
   const found = apiItems.find((item) => item.slug === slug);
-  return found || null;
+  return found || filterFallback(vertical).find((item) => item.slug === slug) || null;
 }
 
 // Aggregated API client for convenience imports
