@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { getListingBySlug } from '../../../lib/api';
 import SmeProductGrid from '../../../components/sme-product-grid';
 import VoiceChatRecorder from '../../../components/voice-chat-recorder';
@@ -15,6 +16,9 @@ export function generateMetadata({ params }: Props): Metadata {
 
 export default async function SMEDetailPage({ params }: Props) {
   const business = await getListingBySlug(params.slug, 'sme');
+  if (!business) {
+    notFound();
+  }
   const providerId = (business as { provider_id?: string }).provider_id;
   const price = new Intl.NumberFormat('en-LK', { maximumFractionDigits: 0 }).format(business.price);
   const similarLinks = ['/sme', '/search?q=artisan&vertical=sme', '/search?q=local&vertical=sme'];

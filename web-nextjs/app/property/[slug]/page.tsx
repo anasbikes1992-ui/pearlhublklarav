@@ -1,10 +1,14 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { getListingBySlug } from '../../../lib/api';
 
 export const revalidate = 300;
 
 export default async function PropertyDetailPage({ params }: { params: { slug: string } }) {
   const listing = await getListingBySlug(params.slug, 'property');
+  if (!listing) {
+    notFound();
+  }
 
   return (
     <main className="page-shell detail-page">

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { getListingBySlug } from '../../../lib/api';
 
 export const revalidate = 300;
@@ -12,6 +13,9 @@ export function generateMetadata({ params }: Props): Metadata {
 
 export default async function VehicleDetailPage({ params }: Props) {
   const vehicle = await getListingBySlug(params.slug, 'vehicle');
+  if (!vehicle) {
+    notFound();
+  }
   const price = new Intl.NumberFormat('en-LK', { maximumFractionDigits: 0 }).format(vehicle.price);
 
   return (

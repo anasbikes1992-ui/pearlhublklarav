@@ -403,8 +403,14 @@ async function fetchSearch(vertical?: Vertical, query?: string): Promise<Listing
     throw new Error(`Search request failed with status ${response.status}`);
   }
 
-  const payload = (await response.json()) as { data?: ApiListing[] };
-  return (payload.data ?? []).map(normalizeListing);
+  const payload = (await response.json()) as { data?: ApiListing[] | { data?: ApiListing[] } };
+  const rawItems = Array.isArray(payload.data)
+    ? payload.data
+    : Array.isArray(payload.data?.data)
+      ? payload.data.data
+      : [];
+
+  return rawItems.map(normalizeListing);
 }
 
 const filterFallback = (vertical?: Vertical, query?: string) => {
@@ -418,46 +424,24 @@ const filterFallback = (vertical?: Vertical, query?: string) => {
 };
 
 export async function searchListings(query: string, vertical?: Vertical): Promise<ListingItem[]> {
-  try {
-    const results = await fetchSearch(vertical, query);
-    if (results.length > 0) return results;
-  } catch {
-    // fall through
-  }
-  return filterFallback(vertical, query);
+  const results = await fetchSearch(vertical, query);
+  return results;
 }
 
 export async function getFeaturedListings(vertical?: Vertical, limit = 3): Promise<ListingItem[]> {
-  try {
-    const items = await fetchSearch(vertical);
-    return items.slice(0, limit);
-  } catch {
-    return filterFallback(vertical).slice(0, limit);
-  }
+  const items = await fetchSearch(vertical);
+  return items.slice(0, limit);
 }
 
 export async function getListingsByCity(city: string, vertical: Vertical): Promise<ListingItem[]> {
-  try {
-    const results = await fetchSearch(vertical, city);
-    if (results.length > 0) {
-      return results;
-    }
-  } catch {
-    // Fall through to fallback data when the API is unavailable.
-  }
-
-  return filterFallback(vertical, city);
+  const results = await fetchSearch(vertical, city);
+  return results;
 }
 
-export async function getListingBySlug(slug: string, vertical: Vertical = 'property'): Promise<ListingItem> {
-  const apiItems = await getFeaturedListings(vertical, 12);
+export async function getListingBySlug(slug: string, vertical: Vertical = 'property'): Promise<ListingItem | null> {
+  const apiItems = await getFeaturedListings(vertical, 50);
   const found = apiItems.find((item) => item.slug === slug);
-
-  if (found) {
-    return found;
-  }
-
-  return filterFallback(vertical).find((item) => item.slug === slug) ?? filterFallback(vertical)[0];
+  return found || null;
 }
 
 // Aggregated API client for convenience imports
