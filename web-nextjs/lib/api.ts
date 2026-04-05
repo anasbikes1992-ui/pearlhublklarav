@@ -459,3 +459,12 @@ export async function getListingBySlug(slug: string, vertical: Vertical = 'prope
 
   return filterFallback(vertical).find((item) => item.slug === slug) ?? filterFallback(vertical)[0];
 }
+
+// Aggregated API client for convenience imports
+export const apiClient = {
+  API_BASE,
+  searchListings,
+  getFeaturedListings,
+  getListingsByCity,
+  getListingBySlug,
+};
