@@ -41,8 +41,6 @@ type BookedRide = {
   created_at: string;
 };
 
-const DEMO_DRIVERS_LIST = DEMO_DRIVERS;
-
 function estimateFare(from: string, to: string): number {
   if (from === to) return 500;
   const fromCoords = CITY_COORDS[from] ?? [6.9271, 79.8612];
@@ -57,7 +55,7 @@ export default function TaxiPage() {
   const { user } = useAuth();
   const [pickup,         setPickup]         = useState('Colombo');
   const [dropoff,        setDropoff]        = useState('Kandy');
-  const [selectedDriver, setSelectedDriver] = useState<string>(DEMO_DRIVERS_LIST[0].id);
+  const [selectedDriver, setSelectedDriver] = useState<string>(DEMO_DRIVERS[0].id);
   const [submitting,     setSubmitting]     = useState(false);
   const [error,          setError]          = useState('');
   const [bookedRide,     setBookedRide]     = useState<BookedRide | null>(null);
@@ -95,7 +93,7 @@ export default function TaxiPage() {
       const ride = data.data;
       if (!ride) throw new Error('Invalid response from server');
       if (!ride.driver) {
-        ride.driver = DEMO_DRIVERS_LIST.find((d) => d.id === selectedDriver) ?? DEMO_DRIVERS_LIST[0];
+        ride.driver = DEMO_DRIVERS.find((d) => d.id === selectedDriver) ?? DEMO_DRIVERS[0];
       }
       setBookedRide(ride);
     } catch (err) {
@@ -232,7 +230,7 @@ export default function TaxiPage() {
         <div className="taxi-drivers-panel">
           <h2 className="taxi-panel-heading">Available drivers</h2>
           <div className="taxi-drivers-list">
-            {DEMO_DRIVERS_LIST.map((driver) => (
+            {DEMO_DRIVERS.map((driver) => (
               <button
                 key={driver.id}
                 type="button"

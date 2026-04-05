@@ -31,20 +31,21 @@ export async function POST(req: NextRequest) {
   // Demo fallback — triggers when the real API is unreachable or failing with 5xx.
   if (backendUnavailable) {
     const { full_name, email, password } = body as { full_name?: string; email?: string; password?: string };
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email) || !password || password.length < 8) {
+    // Validate email with string operations to avoid ReDoS-prone regex
+    const atParts = email ? email.split('@') : [];
+    const emailValid = atParts.length === 2 && atParts[0].length > 0 && atParts[1].includes('.');
+    if (!emailValid || !password || password.length < 8) {
       return NextResponse.json(
         { message: 'Valid email and password (min 8 characters) are required' },
         { status: 422 }
       );
     }
     const displayName = full_name?.trim() || 'Customer';
-    // Encode "email|name" so the /api/auth/me route can recover both fields
-    const payload = `${email}|${displayName}`;
-    const token = `demo_customer_${Buffer.from(payload).toString('base64')}`;
+    // Token format: demo_{role}_{base64(email|displayName)}
+    const demoCustomerToken = `demo_customer_${Buffer.from(`${email}|${displayName}`).toString('base64')}`;
     const user = { id: `demo-${email}`, full_name: displayName, name: displayName, email, role: 'customer' };
     const response = NextResponse.json({ user }, { status: 201 });
-    response.cookies.set('pearl_token', token, {
+    response.cookies.set('pearl_token', demoCustomerToken, {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
