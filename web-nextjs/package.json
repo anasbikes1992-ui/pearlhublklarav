@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "monitor:routes": "node scripts/check-routes.mjs"
   },
   "dependencies": {
     "@vercel/functions": "^3.4.3",
