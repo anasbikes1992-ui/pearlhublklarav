@@ -14,12 +14,15 @@ class EnsureOwnsListingOrAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $listingId = (string) $request->route('listing');
-        if ($listingId === '') {
+        $routeParam = $request->route('listing');
+        if ($routeParam === null || $routeParam === '') {
             return $next($request);
         }
 
-        $listing = Listing::query()->find($listingId);
+        $listing = $routeParam instanceof Listing
+            ? $routeParam
+            : Listing::query()->find((string) $routeParam);
+
         if (! $listing) {
             abort(404, 'Listing not found.');
         }

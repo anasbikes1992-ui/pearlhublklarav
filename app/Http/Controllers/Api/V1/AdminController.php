@@ -14,8 +14,8 @@ class AdminController extends BaseApiController
     public function stats(): JsonResponse
     {
         $bookingsByVertical = Booking::query()
-            ->whereNotIn('status', ['cancelled', 'refunded'])
-            ->where('created_at', '>=', now()->subDays(30))
+            ->whereNotIn('bookings.status', ['cancelled', 'refunded'])
+            ->where('bookings.created_at', '>=', now()->subDays(30))
             ->join('listings', 'bookings.listing_id', '=', 'listings.id')
             ->groupBy('listings.vertical')
             ->selectRaw('listings.vertical, COUNT(*) as count')

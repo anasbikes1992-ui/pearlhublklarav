@@ -19,14 +19,13 @@ class BookingTest extends TestCase
         $listing = Listing::factory()->create([
             'provider_id' => $provider->id,
             'status' => 'published',
+            'vertical' => 'stay',
             'price' => 5000,
         ]);
 
         $response = $this->actingAs($customer, 'sanctum')
             ->postJson('/api/v1/bookings', [
                 'listing_id' => $listing->id,
-                'start_at' => now()->addDays(1)->toDateTimeString(),
-                'end_at' => now()->addDays(3)->toDateTimeString(),
                 'notes' => 'Test booking',
             ]);
 
@@ -41,7 +40,10 @@ class BookingTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $provider = User::factory()->create(['role' => 'provider']);
-        $listing = Listing::factory()->create(['provider_id' => $provider->id]);
+        $listing = Listing::factory()->create([
+            'provider_id' => $provider->id,
+            'vertical' => 'stay',
+        ]);
 
         Booking::factory()->count(2)->create([
             'customer_id' => $customer->id,
@@ -57,9 +59,7 @@ class BookingTest extends TestCase
     public function test_unauthenticated_cannot_create_booking(): void
     {
         $response = $this->postJson('/api/v1/bookings', [
-            'listing_id' => 'fake-id',
-            'start_at' => now()->addDay()->toDateTimeString(),
-            'end_at' => now()->addDays(2)->toDateTimeString(),
+            'listing_id' => fake()->uuid(),
         ]);
 
         $response->assertStatus(401);
@@ -72,14 +72,13 @@ class BookingTest extends TestCase
         $listing = Listing::factory()->create([
             'provider_id' => $provider->id,
             'status' => 'published',
+            'vertical' => 'stay',
             'price' => 10000,
         ]);
 
         $this->actingAs($customer, 'sanctum')
             ->postJson('/api/v1/bookings', [
                 'listing_id' => $listing->id,
-                'start_at' => now()->addDays(1)->toDateTimeString(),
-                'end_at' => now()->addDays(3)->toDateTimeString(),
             ]);
 
         $this->assertDatabaseCount('escrows', 1);

@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\VerticalFeeConfig;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class FeeCalculationTest extends TestCase
 {
@@ -58,7 +58,7 @@ class FeeCalculationTest extends TestCase
             'max_uses' => 10,
             'used_count' => 0,
             'is_active' => true,
-            'expires_at' => now()->addMonth(),
+            'expires_at' => \Carbon\Carbon::now()->addMonth(),
         ]);
 
         $this->assertTrue($promo->isValid());
@@ -73,7 +73,7 @@ class FeeCalculationTest extends TestCase
             'max_uses' => 10,
             'used_count' => 0,
             'is_active' => true,
-            'expires_at' => now()->subDay(),
+            'expires_at' => \Carbon\Carbon::now()->subDay(),
         ]);
 
         $this->assertFalse($promo->isValid());

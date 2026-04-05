@@ -39,7 +39,7 @@ class PromoCodeController extends BaseApiController
 
     public function generate(Request $request): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'type' => 'required|in:sale_confirmation,discount_fixed,discount_percent',
             'code' => 'nullable|string|max:32|unique:promo_codes,code',
             'listing_id' => 'nullable|uuid|exists:listings,id',
@@ -51,7 +51,7 @@ class PromoCodeController extends BaseApiController
 
         $promo = $this->promoCodeService->generate(
             $request->user()->id,
-            $request->validated(),
+            $validated,
         );
 
         return $this->success($promo, 'Promo code created', 201);

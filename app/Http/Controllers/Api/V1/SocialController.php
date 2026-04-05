@@ -135,7 +135,7 @@ class SocialController extends BaseApiController
         $target = User::findOrFail($userId);
 
         if ((string) $request->user()->id === (string) $target->id) {
-            return $this->error('Cannot follow yourself', 422);
+            return $this->error('Cannot follow yourself', [], 422);
         }
 
         SocialFollow::firstOrCreate([

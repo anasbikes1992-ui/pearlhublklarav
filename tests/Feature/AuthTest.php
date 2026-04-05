@@ -52,7 +52,7 @@ class AuthTest extends TestCase
             'password' => 'WrongPassword!',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
     }
 
     public function test_authenticated_user_can_get_profile(): void

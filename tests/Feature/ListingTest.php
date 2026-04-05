@@ -5,11 +5,18 @@ namespace Tests\Feature;
 use App\Models\Listing;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ListingTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Http::fake(['*' => Http::response(['translatedText' => 'translated'], 200)]);
+    }
 
     public function test_can_list_public_listings(): void
     {
@@ -51,6 +58,7 @@ class ListingTest extends TestCase
                 'price' => 45000000,
                 'vertical' => 'property',
                 'currency' => 'LKR',
+                'listing_type' => ['type' => 'property'],
             ]);
 
         $response->assertStatus(201);
