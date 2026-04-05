@@ -10,14 +10,19 @@ use App\Models\SocialFollow;
 use App\Models\SocialLike;
 use App\Models\SocialPost;
 use App\Models\User;
+use Faker\Factory as FakerFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class SocialSchemaSeeder extends Seeder
 {
+    private \Faker\Generator $faker;
+
     public function run(): void
     {
+        $this->faker = FakerFactory::create();
+
         if ($this->hasUserKeyTypeMismatch()) {
             $this->command?->warn('Skipped social seeders because social_* user_id uses numeric foreign keys while users.id is UUID.');
         } else {
@@ -28,17 +33,17 @@ class SocialSchemaSeeder extends Seeder
         foreach ($users->take(12) as $user) {
             AiConciergeLog::query()->create([
                 'user_id' => $user->id,
-                'query' => fake()->sentence(10),
-                'response' => fake()->paragraph(4),
-                'model_used' => fake()->randomElement(['gpt-4.1', 'gpt-4o-mini', 'assistant-v2']),
+                'query' => $this->faker->sentence(10),
+                'response' => $this->faker->paragraph(4),
+                'model_used' => $this->faker->randomElement(['gpt-4.1', 'gpt-4o-mini', 'assistant-v2']),
             ]);
         }
 
         foreach ($users->take(12) as $user) {
             AuditLog::query()->create([
-                'actor_id' => fake()->boolean(85) ? $user->id : null,
-                'action' => fake()->randomElement(['listing.updated', 'booking.created', 'wallet.credited', 'login.success']),
-                'entity_type' => fake()->randomElement(['listing', 'booking', 'wallet', 'auth']),
+                'actor_id' => $this->faker->boolean(85) ? $user->id : null,
+                'action' => $this->faker->randomElement(['listing.updated', 'booking.created', 'wallet.credited', 'login.success']),
+                'entity_type' => $this->faker->randomElement(['listing', 'booking', 'wallet', 'auth']),
                 'entity_id' => (string) Str::uuid(),
                 'meta' => ['seed' => true, 'source' => 'social-schema-seeder'],
             ]);
@@ -52,14 +57,14 @@ class SocialSchemaSeeder extends Seeder
         $posts = collect();
 
         foreach ($users as $user) {
-            $postCount = fake()->numberBetween(1, 2);
+            $postCount = $this->faker->numberBetween(1, 2);
             foreach (range(1, $postCount) as $_) {
                 $posts->push(SocialPost::query()->create([
                     'user_id' => $user->id,
-                    'content' => fake()->paragraph(),
-                    'media_urls' => fake()->boolean(40) ? ['/media/seed/' . Str::lower(Str::random(10)) . '.jpg'] : null,
-                    'vertical_tag' => fake()->randomElement(['property', 'stays', 'vehicles', 'events', 'sme', 'taxi', 'experience', 'social']),
-                    'listing_id' => fake()->boolean(40) && $listings->isNotEmpty() ? $listings->random()->id : null,
+                    'content' => $this->faker->paragraph(),
+                    'media_urls' => $this->faker->boolean(40) ? ['/media/seed/' . Str::lower(Str::random(10)) . '.jpg'] : null,
+                    'vertical_tag' => $this->faker->randomElement(['property', 'stays', 'vehicles', 'events', 'sme', 'taxi', 'experience', 'social']),
+                    'listing_id' => $this->faker->boolean(40) && $listings->isNotEmpty() ? $listings->random()->id : null,
                     'likes_count' => 0,
                     'comments_count' => 0,
                     'is_pinned' => false,
@@ -69,20 +74,20 @@ class SocialSchemaSeeder extends Seeder
         }
 
         foreach ($posts as $post) {
-            $commenters = $users->shuffle()->take(fake()->numberBetween(1, 4));
+            $commenters = $users->shuffle()->take($this->faker->numberBetween(1, 4));
             $parent = null;
 
             foreach ($commenters as $commenter) {
                 $parent = SocialComment::query()->create([
                     'post_id' => $post->id,
                     'user_id' => $commenter->id,
-                    'body' => fake()->sentence(12),
-                    'parent_id' => fake()->boolean(35) ? $parent?->id : null,
+                    'body' => $this->faker->sentence(12),
+                    'parent_id' => $this->faker->boolean(35) ? $parent?->id : null,
                     'is_flagged' => false,
                 ]);
             }
 
-            $likers = $users->shuffle()->take(fake()->numberBetween(2, 8));
+            $likers = $users->shuffle()->take($this->faker->numberBetween(2, 8));
             foreach ($likers as $liker) {
                 SocialLike::query()->firstOrCreate([
                     'user_id' => $liker->id,
@@ -97,7 +102,7 @@ class SocialSchemaSeeder extends Seeder
         }
 
         foreach ($users as $follower) {
-            $following = $users->where('id', '!=', $follower->id)->shuffle()->take(fake()->numberBetween(1, 4));
+            $following = $users->where('id', '!=', $follower->id)->shuffle()->take($this->faker->numberBetween(1, 4));
             foreach ($following as $followedUser) {
                 SocialFollow::query()->firstOrCreate([
                     'follower_id' => $follower->id,
