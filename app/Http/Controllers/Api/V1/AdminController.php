@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends BaseApiController
 {
@@ -31,6 +32,10 @@ class AdminController extends BaseApiController
     public function godView(): JsonResponse
     {
         return $this->success(Cache::remember('admin:god-view:v1', 300, function (): array {
+            $hasJobsTable = Schema::hasTable('jobs');
+            $hasVerticalFeeTable = Schema::hasTable('vertical_fee_configs');
+            $hasPlatformSettingsTable = Schema::hasTable('platform_settings');
+
             $usersByRole = User::query()
             ->groupBy('role')
             ->selectRaw('role, COUNT(*) as count')
@@ -71,13 +76,13 @@ class AdminController extends BaseApiController
                     'listings_by_vertical' => $listingsByVertical,
                 ],
                 'configs' => [
-                    'vertical_fees' => VerticalFeeConfig::query()->orderBy('vertical')->get(),
-                    'platform_settings' => PlatformSetting::query()->orderBy('key')->get(),
+                    'vertical_fees' => $hasVerticalFeeTable ? VerticalFeeConfig::query()->orderBy('vertical')->get() : [],
+                    'platform_settings' => $hasPlatformSettingsTable ? PlatformSetting::query()->orderBy('key')->get() : [],
                 ],
                 'health' => [
                     'db_ok' => true,
                     'cache_ok' => true,
-                    'queue_backlog' => DB::table('jobs')->count(),
+                    'queue_backlog' => $hasJobsTable ? DB::table('jobs')->count() : 0,
                 ],
             ];
         }));
@@ -411,6 +416,13 @@ class AdminController extends BaseApiController
 
     public function configs(): JsonResponse
     {
+        if (! Schema::hasTable('vertical_fee_configs') || ! Schema::hasTable('platform_settings')) {
+            return $this->success([
+                'vertical_fees' => [],
+                'platform_settings' => [],
+            ], 'Config tables are not ready yet.');
+        }
+
         return $this->success([
             'vertical_fees' => VerticalFeeConfig::query()->orderBy('vertical')->get(),
             'platform_settings' => PlatformSetting::query()->orderBy('key')->get(),
