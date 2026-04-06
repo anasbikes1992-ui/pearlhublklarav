@@ -7,6 +7,41 @@ Full deployment of PearlHub Pro covering:
 
 ---
 
+## Phase 0: Contabo aaPanel Option (Recommended for Fast Ops)
+
+Choose this path when you want one-click installation of `MySQL + PHP + Nginx` and simple backup management.
+
+### Quick Setup
+1. Provision Ubuntu VPS on Contabo.
+2. Install aaPanel from the official script.
+3. In aaPanel App Store install:
+   - Nginx
+   - MySQL (or MariaDB)
+   - PHP 8.3+
+   - phpMyAdmin
+4. Create your site and bind API domain.
+5. Create MySQL database and dedicated DB user.
+6. Set backend `.env` values:
+   - `DB_CONNECTION=mysql`
+   - `DB_HOST=127.0.0.1`
+   - `DB_PORT=3306`
+   - `DB_DATABASE=<db_name>`
+   - `DB_USERNAME=<db_user>`
+   - `DB_PASSWORD=<db_password>`
+7. Run Laravel bootstrap:
+   - `composer install --no-dev --optimize-autoloader`
+   - `php artisan migrate --force`
+   - `php artisan config:cache`
+   - `php artisan route:cache`
+
+### Backup Policy (aaPanel)
+1. Configure daily MySQL backup in `aaPanel -> Cron`.
+2. Keep at least 7-14 restore points.
+3. Add remote backup target (S3/FTP/remote server).
+4. Test one backup restore monthly on staging.
+
+---
+
 ## Phase 1: Web UI Fix & Improvement
 
 ### Issues Found

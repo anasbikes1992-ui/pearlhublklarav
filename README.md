@@ -215,6 +215,44 @@ php artisan config:cache
 php artisan route:cache
 ```
 
+### Laravel -> Contabo with aaPanel (Quick One-Click)
+
+Use this option when you want fast MySQL/PHP/Nginx setup and simple backup management.
+
+1. Create a clean Ubuntu VPS on Contabo.
+2. Install aaPanel from the official installer.
+3. In aaPanel App Store, install:
+    - `Nginx`
+    - `MySQL` (or MariaDB)
+    - `PHP 8.3+`
+    - `phpMyAdmin`
+4. In aaPanel, create:
+    - Site for your API domain (for example `api.yourdomain.com`)
+    - MySQL database + DB user (save credentials)
+5. Deploy backend code to server and set `.env`:
+    - `DB_CONNECTION=mysql`
+    - `DB_HOST=127.0.0.1`
+    - `DB_PORT=3306`
+    - `DB_DATABASE=<your_db_name>`
+    - `DB_USERNAME=<your_db_user>`
+    - `DB_PASSWORD=<your_db_password>`
+6. Run Laravel production bootstrap:
+
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan queue:restart
+```
+
+#### MySQL Backups in aaPanel
+
+1. Open `aaPanel -> Cron`.
+2. Add a daily MySQL backup job for your PearlHub database.
+3. Keep at least 7-14 restore points.
+4. Add off-server backup destination (S3/FTP/remote) to avoid single-server loss.
+5. Test one restore monthly on a staging database.
 ---
 
 ## Tech Stack
