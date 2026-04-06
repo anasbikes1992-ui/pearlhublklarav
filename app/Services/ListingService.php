@@ -8,6 +8,7 @@ use App\Repositories\Contracts\ListingRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -100,7 +101,19 @@ class ListingService
 
     public function find(string $id): Listing
     {
-        return $this->listingRepository->findOrFail($id);
+        return Cache::remember("listing:{$id}", 300, function () use ($id): Listing {
+            return $this->listingRepository->findOrFail($id);
+        });
+    }
+
+    /**
+     * Find listing by slug with caching
+     */
+    public function findBySlug(string $slug): ?Listing
+    {
+        return Cache::remember("listing:slug:{$slug}", 300, function () use ($slug): ?Listing {
+            return Listing::query()->where('slug', $slug)->first();
+        });
     }
 
     /**
@@ -138,13 +151,29 @@ class ListingService
             );
         }
 
-        return $this->listingRepository->update($listing, $data);
+        $updated = $this->listingRepository->update($listing, $data);
+
+        // Clear caches
+        Cache::forget("listing:{$id}");
+        if ($listing->slug) {
+            Cache::forget("listing:slug:{$listing->slug}");
+        }
+
+        return $updated;
     }
 
     public function delete(string $id): bool
     {
         $listing = $this->listingRepository->findOrFail($id);
 
-        return $this->listingRepository->delete($listing);
+        $deleted = $this->listingRepository->delete($listing);
+
+        // Clear caches
+        Cache::forget("listing:{$id}");
+        if ($listing->slug) {
+            Cache::forget("listing:slug:{$listing->slug}");
+        }
+
+        return $deleted;
     }
 }

@@ -12,11 +12,19 @@ class VerticalFeeConfig extends Model
 
     protected $fillable = [
         'vertical',
+        'display_name',
+        'icon',
+        'color',
         'listing_fee',
         'commission_rate',
         'vat_rate',
         'tourism_tax_rate',
         'service_charge_rate',
+        'flow_type',
+        'cancellation_window_hours',
+        'buffer_hours',
+        'requires_escrow',
+        'product_limit',
         'is_active',
     ];
 
@@ -26,8 +34,26 @@ class VerticalFeeConfig extends Model
         'vat_rate' => 'decimal:4',
         'tourism_tax_rate' => 'decimal:4',
         'service_charge_rate' => 'decimal:4',
+        'cancellation_window_hours' => 'integer',
+        'buffer_hours' => 'integer',
+        'requires_escrow' => 'boolean',
+        'product_limit' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    // Flow type constants
+    public const FLOW_BOOKING = 'booking';
+    public const FLOW_INQUIRY = 'inquiry_only';
+    public const FLOW_APPROVAL = 'approval_required';
+
+    public static function getFlowTypes(): array
+    {
+        return [
+            self::FLOW_BOOKING => 'Instant Booking',
+            self::FLOW_INQUIRY => 'Inquiry Only',
+            self::FLOW_APPROVAL => 'Approval Required',
+        ];
+    }
 
     public static function forVertical(string $vertical): ?self
     {

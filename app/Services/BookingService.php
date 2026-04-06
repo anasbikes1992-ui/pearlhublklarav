@@ -6,14 +6,17 @@ use App\Events\BookingStatusUpdated;
 use App\Models\Booking;
 use App\Models\Escrow;
 use App\Models\Listing;
+use App\Services\AuditLogService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class BookingService
 {
-    public function __construct(private readonly VerticalPolicy $verticalPolicy)
-    {
+    public function __construct(
+        private readonly VerticalPolicy $verticalPolicy,
+        private readonly AuditLogService $auditLogService,
+    ) {
     }
 
     public function listForUser(string $userId): Collection
@@ -30,6 +33,19 @@ class BookingService
      */
     public function createBooking(string $userId, array $payload): Booking
     {
+        // Check idempotency key to prevent duplicate bookings from retries
+        if (!empty($payload['idempotency_key'])) {
+            $existingBooking = Booking::query()
+                ->where('customer_id', $userId)
+                ->where('listing_id', $payload['listing_id'])
+                ->where('notes->idempotency_key', $payload['idempotency_key'])
+                ->first();
+
+            if ($existingBooking) {
+                return $existingBooking;
+            }
+        }
+
         $listing = Listing::query()->findOrFail($payload['listing_id']);
 
         if ($this->verticalPolicy->isInquiryOnly($listing->vertical)) {
@@ -117,6 +133,20 @@ class BookingService
         $total = round($basePrice + $commission + $tax, 2);
 
         $booking = DB::transaction(function () use ($listing, $userId, $payload, $startAt, $endAt, $basePrice, $commissionRate, $taxRate, $commission, $tax, $total): Booking {
+            $notes = [
+                'base_price' => $basePrice,
+                'commission_rate' => $commissionRate,
+                'commission_amount' => round($commission, 2),
+                'tax_rate' => $taxRate,
+                'tax_amount' => round($tax, 2),
+                'invoice_ref' => 'INV-'.strtoupper(substr((string) $listing->id, 0, 8)).'-'.now()->timestamp,
+            ];
+
+            // Store idempotency key in notes if provided
+            if (!empty($payload['idempotency_key'])) {
+                $notes['idempotency_key'] = $payload['idempotency_key'];
+            }
+
             $booking = Booking::query()->create([
                 'listing_id' => $listing->id,
                 'customer_id' => $userId,
@@ -126,14 +156,7 @@ class BookingService
                 'total_amount' => $total,
                 'currency' => $listing->currency,
                 'payment_status' => 'pending',
-                'notes' => json_encode([
-                    'base_price' => $basePrice,
-                    'commission_rate' => $commissionRate,
-                    'commission_amount' => round($commission, 2),
-                    'tax_rate' => $taxRate,
-                    'tax_amount' => round($tax, 2),
-                    'invoice_ref' => 'INV-'.strtoupper(substr((string) $listing->id, 0, 8)).'-'.now()->timestamp,
-                ]),
+                'notes' => json_encode($notes),
             ]);
 
             if ($this->verticalPolicy->requiresEscrow($listing->vertical)) {
@@ -148,6 +171,15 @@ class BookingService
                 ]);
             }
 
+            // Audit log
+            $this->auditLogService->log($userId, 'booking.created', Booking::class, $booking->id, [
+                'listing_id' => $listing->id,
+                'vertical' => $listing->vertical,
+                'total_amount' => $total,
+                'start_at' => $startAt?->toIso8601String(),
+                'end_at' => $endAt?->toIso8601String(),
+            ]);
+
             return $booking;
         });
 
@@ -161,11 +193,50 @@ class BookingService
      */
     public function updateBooking(Booking $booking, array $payload): Booking
     {
+        $oldStatus = $booking->status;
+
+        // Check if trying to cancel and validate against cancellation policy
+        if (isset($payload['status']) && $payload['status'] === 'cancelled') {
+            $this->validateCancellationPolicy($booking);
+        }
+
         $booking->fill($payload);
         $booking->save();
+
+        // Audit log for status changes
+        if (isset($payload['status']) && $payload['status'] !== $oldStatus) {
+            $this->auditLogService->log($booking->customer_id, 'booking.status_updated', Booking::class, $booking->id, [
+                'old_status' => $oldStatus,
+                'new_status' => $payload['status'],
+                'changed_by' => auth()->id(),
+            ]);
+        }
 
         event(new BookingStatusUpdated($booking));
 
         return $booking->refresh();
+    }
+
+    /**
+     * Validate cancellation against vertical policy
+     */
+    private function validateCancellationPolicy(Booking $booking): void
+    {
+        $listing = $booking->listing;
+        $cancellationWindow = $this->verticalPolicy->getCancellationWindowHours($listing->vertical);
+
+        if ($cancellationWindow === 0) {
+            throw new RuntimeException('Cancellations are not allowed for this type of booking.');
+        }
+
+        if ($booking->start_at) {
+            $hoursUntilStart = now()->diffInHours($booking->start_at, false);
+
+            if ($hoursUntilStart < $cancellationWindow) {
+                throw new RuntimeException(
+                    "Cancellations must be made at least {$cancellationWindow} hours before the booking starts."
+                );
+            }
+        }
     }
 }

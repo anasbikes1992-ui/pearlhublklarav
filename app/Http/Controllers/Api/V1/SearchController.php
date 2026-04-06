@@ -14,12 +14,18 @@ class SearchController extends BaseApiController
 
     public function __invoke(Request $request): JsonResponse
     {
-        $perPage = min((int) $request->input('per_page', 20), 100);
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+            'vertical' => ['nullable', 'string', 'in:property,stay,vehicle,event,sme,experience,taxi'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $perPage = min((int) ($validated['per_page'] ?? 20), 100);
 
         $results = $this->searchService->search(
-            query: $request->string('q')->toString(),
+            query: $validated['q'] ?? '',
             filters: array_filter([
-                'vertical' => $request->string('vertical')->toString(),
+                'vertical' => $validated['vertical'] ?? null,
             ]),
             perPage: $perPage,
         );

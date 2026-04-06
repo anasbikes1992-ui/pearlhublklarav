@@ -48,3 +48,4 @@ flutter-monorepo/**/ios/.symlinks/
 
 .playwright-test-results
 .playwright-*
+.vercel

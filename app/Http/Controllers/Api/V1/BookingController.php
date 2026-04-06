@@ -24,6 +24,7 @@ class BookingController extends BaseApiController
             'listing_id' => ['required', 'uuid', 'exists:listings,id'],
             'start_at' => ['nullable', 'date'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
+            'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
 
         $booking = $this->bookingService->createBooking($request->user()->id, $validated);
