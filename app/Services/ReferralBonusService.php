@@ -6,8 +6,10 @@ use App\Models\PearlPoint;
 use App\Models\PlatformSetting;
 use App\Models\Referral;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class ReferralBonusService
 {
@@ -20,8 +22,25 @@ class ReferralBonusService
     public function ensureReferralIdentity(User $user): void
     {
         if (! $user->referral_code) {
-            $user->referral_code = $this->generateUniqueCode();
-            $user->save();
+            $maxAttempts = 5;
+
+            for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                $candidate = $this->generateUniqueCode();
+
+                try {
+                    $user->referral_code = $candidate;
+                    $user->save();
+                    break;
+                } catch (QueryException $exception) {
+                    // Retry on duplicate key to avoid race collisions under concurrency.
+                    $isDuplicate = str_contains((string) $exception->getCode(), '23000')
+                        || str_contains(strtolower($exception->getMessage()), 'duplicate');
+
+                    if (! $isDuplicate || $attempt === $maxAttempts) {
+                        throw new RuntimeException('Unable to assign a unique referral code.', 0, $exception);
+                    }
+                }
+            }
         }
 
         PearlPoint::query()->firstOrCreate(
@@ -34,6 +53,11 @@ class ReferralBonusService
     {
         $normalized = strtoupper(trim((string) $referralCode));
         if ($normalized === '') {
+            return;
+        }
+
+        // Keep lookups bounded to expected referral code format.
+        if (! preg_match('/^PH[A-Z0-9]{8}$/', $normalized)) {
             return;
         }
 
@@ -55,7 +79,7 @@ class ReferralBonusService
                 [
                     'referrer_id' => $referrer->id,
                     'code' => $normalized,
-                    'status' => 'credited',
+                    'status' => Referral::STATUS_COMPLETED,
                     'points_awarded' => $referrerPoints,
                     'revenue_bonus_amount' => $cashBonus,
                 ]

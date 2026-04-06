@@ -7,7 +7,6 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Models\VerticalFeeConfig;
 use App\Models\Wallet;
-use Faker\Factory as FakerFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,8 +14,6 @@ class CoreSchemaSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = FakerFactory::create();
-
         $users = [
             ['full_name' => 'Admin User', 'email' => 'admin@pearlhub.lk', 'role' => User::ROLE_ADMIN],
             ['full_name' => 'Provider One', 'email' => 'provider1@pearlhub.lk', 'role' => User::ROLE_PROVIDER],
@@ -30,7 +27,7 @@ class CoreSchemaSeeder extends Seeder
         ];
 
         foreach ($users as $index => $seedUser) {
-            $user = User::query()->updateOrCreate(
+            $user = User::query()->firstOrCreate(
                 ['email' => $seedUser['email']],
                 [
                     'full_name' => $seedUser['full_name'],
@@ -46,9 +43,9 @@ class CoreSchemaSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'nic' => 'NIC-' . str_pad((string) ($index + 1), 6, '0', STR_PAD_LEFT),
-                    'address_line_1' => $faker->streetAddress(),
-                    'city' => $faker->city(),
-                    'district' => $faker->randomElement(['Colombo', 'Gampaha', 'Kandy', 'Galle']),
+                    'address_line_1' => fake()->streetAddress(),
+                    'city' => fake()->city(),
+                    'district' => fake()->randomElement(['Colombo', 'Gampaha', 'Kandy', 'Galle']),
                     'country_code' => 'LK',
                     'is_kyc_verified' => $seedUser['role'] !== User::ROLE_CUSTOMER,
                 ]
@@ -57,7 +54,7 @@ class CoreSchemaSeeder extends Seeder
             Wallet::query()->firstOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'balance' => $faker->randomFloat(2, 2500, 50000),
+                    'balance' => fake()->randomFloat(2, 2500, 50000),
                     'currency' => 'LKR',
                     'status' => 'active',
                 ]

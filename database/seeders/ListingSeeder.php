@@ -5,15 +5,12 @@ namespace Database\Seeders;
 use App\Models\Listing;
 use App\Models\Review;
 use App\Models\User;
-use Faker\Factory as FakerFactory;
 use Illuminate\Database\Seeder;
 
 class ListingSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = FakerFactory::create();
-
         $provider = User::query()->where('role', 'provider')->first()
             ?? User::factory()->create([
                 'full_name' => 'Demo Provider',
@@ -43,9 +40,9 @@ class ListingSeeder extends Seeder
                 ->count(4)
                 ->state(['provider_id' => $provider->id, 'vertical' => $vertical])
                 ->create()
-                ->each(function (Listing $listing) use ($customers, $faker): void {
+                ->each(function (Listing $listing) use ($customers): void {
                     // Seed 2-3 reviews per listing
-                    $reviewers = $customers->shuffle()->take($faker->numberBetween(2, 3));
+                    $reviewers = $customers->shuffle()->take(fake()->numberBetween(2, 3));
 
                     foreach ($reviewers as $reviewer) {
                         Review::factory()->create([

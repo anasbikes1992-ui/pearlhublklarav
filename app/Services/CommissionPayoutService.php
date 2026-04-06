@@ -25,20 +25,20 @@ class CommissionPayoutService
     {
         $listing = $booking->listing;
         $vertical = $listing->vertical;
-        
+
         $basePrice = (float) $booking->total_amount;
-        
+
         // Get rates from vertical policy or database config
         $commissionRate = $this->getCommissionRate($vertical);
         $platformFeeRate = $this->getPlatformFeeRate($vertical);
         $taxRate = $this->verticalPolicy->taxRate($vertical);
-        
+
         $platformCommission = round($basePrice * $commissionRate, 2);
         $platformFee = round($basePrice * $platformFeeRate, 2);
         $taxAmount = round($basePrice * $taxRate, 2);
-        
+
         $providerEarnings = round($basePrice - $platformCommission - $platformFee - $taxAmount, 2);
-        
+
         return [
             'base_amount' => $basePrice,
             'platform_commission' => $platformCommission,
@@ -56,20 +56,30 @@ class CommissionPayoutService
      */
     public function processProviderPayout(Booking $booking): void
     {
-        if ($booking->status !== 'completed') {
-            throw new \RuntimeException('Booking must be completed before payout');
-        }
+        $auditData = DB::transaction(function () use ($booking): array {
+            $lockedBooking = Booking::query()
+                ->with(['listing.provider'])
+                ->whereKey($booking->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $provider = $booking->listing->provider;
-        $commissionBreakdown = $this->calculateCommission($booking);
-        
-        DB::transaction(function () use ($booking, $provider, $commissionBreakdown) {
+            if ($lockedBooking->status !== 'completed') {
+                throw new \RuntimeException('Booking must be completed before payout');
+            }
+
+            if (Earning::query()->where('booking_id', $lockedBooking->id)->exists()) {
+                throw new \RuntimeException('Payout already processed for this booking');
+            }
+
+            $provider = $lockedBooking->listing->provider;
+            $commissionBreakdown = $this->calculateCommission($lockedBooking);
+
             // Create earning record
             $earning = Earning::query()->create([
                 'user_id' => $provider->id,
-                'booking_id' => $booking->id,
+                'booking_id' => $lockedBooking->id,
                 'amount' => $commissionBreakdown['provider_earnings'],
-                'currency' => $booking->currency,
+                'currency' => $lockedBooking->currency,
                 'platform_fee' => $commissionBreakdown['platform_fee'],
                 'commission' => $commissionBreakdown['platform_commission'],
                 'tax' => $commissionBreakdown['tax_amount'],
@@ -82,25 +92,32 @@ class CommissionPayoutService
                 userId: $provider->id,
                 amount: $commissionBreakdown['provider_earnings'],
                 provider: 'provider_earnings',
-                reference: $booking->id,
+                reference: $lockedBooking->id,
                 meta: [
-                    'booking_id' => $booking->id,
+                    'booking_id' => $lockedBooking->id,
                     'earning_id' => $earning->id,
                     'commission_breakdown' => $commissionBreakdown,
                 ]
             );
 
             $earning->update(['status' => 'paid', 'paid_at' => now()]);
+
+            return [
+                'provider_id' => $provider->id,
+                'booking_id' => $lockedBooking->id,
+                'amount' => $commissionBreakdown['provider_earnings'],
+                'commission' => $commissionBreakdown['platform_commission'],
+            ];
         });
 
         $this->auditLogService->log(
-            $provider->id,
+            $auditData['provider_id'],
             'payout.processed',
             Booking::class,
-            $booking->id,
+            $auditData['booking_id'],
             [
-                'amount' => $commissionBreakdown['provider_earnings'],
-                'commission' => $commissionBreakdown['platform_commission'],
+                'amount' => $auditData['amount'],
+                'commission' => $auditData['commission'],
             ]
         );
     }

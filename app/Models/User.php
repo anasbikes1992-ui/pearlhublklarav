@@ -40,11 +40,11 @@ class User extends Authenticatable
     public function setRole(string $role): void
     {
         $allowedRoles = [self::ROLE_ADMIN, self::ROLE_PROVIDER, self::ROLE_CUSTOMER, self::ROLE_DRIVER];
-        
+
         if (!in_array($role, $allowedRoles, true)) {
             throw new \InvalidArgumentException("Invalid role: {$role}");
         }
-        
+
         $this->role = $role;
         $this->save();
     }

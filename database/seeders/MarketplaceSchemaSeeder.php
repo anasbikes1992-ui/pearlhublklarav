@@ -19,18 +19,13 @@ use App\Models\User;
 use App\Models\VerificationAudit;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
-use Faker\Factory as FakerFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class MarketplaceSchemaSeeder extends Seeder
 {
-    private \Faker\Generator $faker;
-
     public function run(): void
     {
-        $this->faker = FakerFactory::create();
-
         $providers = User::query()->where('role', User::ROLE_PROVIDER)->get();
         $customers = User::query()->where('role', User::ROLE_CUSTOMER)->get();
         $drivers = User::query()->where('role', User::ROLE_DRIVER)->get();
@@ -51,8 +46,8 @@ class MarketplaceSchemaSeeder extends Seeder
                     'inspector_id' => $listing->inspector_id ?? $admins->first()?->id ?? $providers->first()?->id,
                     'status' => 'approved',
                     'notes' => 'Seeded QA verification for demo listing.',
-                    'inspected_at' => now()->subDays($this->faker->numberBetween(1, 45)),
-                    'photo_urls' => ['/storage/seed/inspection-' . $this->faker->numberBetween(100, 999) . '.jpg'],
+                    'inspected_at' => now()->subDays(fake()->numberBetween(1, 45)),
+                    'photo_urls' => ['/storage/seed/inspection-' . fake()->numberBetween(100, 999) . '.jpg'],
                 ]
             );
 
@@ -66,11 +61,11 @@ class MarketplaceSchemaSeeder extends Seeder
                         'type' => 'deed_title',
                         'file_path' => 'ownership/deed-' . Str::lower(Str::random(10)) . '.pdf',
                         'owner_name' => $listing->provider?->full_name ?? 'Property Owner',
-                        'nic_or_company' => 'PV-REG-' . $this->faker->numberBetween(1000, 9999),
+                        'nic_or_company' => 'PV-REG-' . fake()->numberBetween(1000, 9999),
                         'status' => 'approved',
                         'reviewed_by' => $admins->first()?->id,
                         'review_notes' => 'Auto-approved for seeded dataset.',
-                        'reviewed_at' => now()->subDays($this->faker->numberBetween(1, 15)),
+                        'reviewed_at' => now()->subDays(fake()->numberBetween(1, 15)),
                     ]
                 );
 
@@ -85,7 +80,7 @@ class MarketplaceSchemaSeeder extends Seeder
                         'status' => 'approved',
                         'reviewed_by' => $admins->first()?->id,
                         'review_notes' => 'Broker mandate validated in seed flow.',
-                        'reviewed_at' => now()->subDays($this->faker->numberBetween(1, 10)),
+                        'reviewed_at' => now()->subDays(fake()->numberBetween(1, 10)),
                     ]
                 );
             }
@@ -95,18 +90,18 @@ class MarketplaceSchemaSeeder extends Seeder
 
         foreach ($listings->take(24) as $listing) {
             $customer = $customers->random();
-            $startAt = now()->addDays($this->faker->numberBetween(1, 21));
-            $endAt = (clone $startAt)->addDays($this->faker->numberBetween(1, 4));
+            $startAt = now()->addDays(fake()->numberBetween(1, 21));
+            $endAt = (clone $startAt)->addDays(fake()->numberBetween(1, 4));
 
             $booking = Booking::query()->create([
                 'listing_id' => $listing->id,
                 'customer_id' => $customer->id,
                 'start_at' => $startAt,
                 'end_at' => $endAt,
-                'status' => $this->faker->randomElement(['pending', 'confirmed', 'completed']),
+                'status' => fake()->randomElement(['pending', 'confirmed', 'completed']),
                 'total_amount' => $listing->price,
                 'currency' => 'LKR',
-                'payment_status' => $this->faker->randomElement(['pending', 'paid', 'refunded']),
+                'payment_status' => fake()->randomElement(['pending', 'paid', 'refunded']),
                 'notes' => 'Seeded booking for integration and dashboard testing.',
             ]);
 
@@ -128,7 +123,7 @@ class MarketplaceSchemaSeeder extends Seeder
                 Transaction::query()->create([
                     'wallet_id' => $customerWallet->id,
                     'booking_id' => $booking->id,
-                    'provider' => $this->faker->randomElement(['payhere', 'stripe', 'mock_gateway']),
+                    'provider' => fake()->randomElement(['payhere', 'stripe', 'mock_gateway']),
                     'external_reference' => 'TX-' . Str::upper(Str::random(10)),
                     'amount' => $booking->total_amount,
                     'currency' => 'LKR',
@@ -174,8 +169,8 @@ class MarketplaceSchemaSeeder extends Seeder
                         'reviewer_id' => $reviewer->id,
                     ],
                     [
-                        'rating' => $this->faker->randomFloat(1, 3.5, 5.0),
-                        'comment' => $this->faker->sentence(14),
+                        'rating' => fake()->randomFloat(1, 3.5, 5.0),
+                        'comment' => fake()->sentence(14),
                     ]
                 );
             }
@@ -183,14 +178,14 @@ class MarketplaceSchemaSeeder extends Seeder
             PromoCode::query()->firstOrCreate(
                 ['code' => 'PHB' . strtoupper(Str::random(6))],
                 [
-                    'listing_id' => $this->faker->boolean(65) ? $listing->id : null,
+                    'listing_id' => fake()->boolean(65) ? $listing->id : null,
                     'issued_by' => $listing->provider_id,
-                    'type' => $this->faker->randomElement(['sale_confirmation', 'discount_fixed', 'discount_percent']),
-                    'value' => $this->faker->randomElement([500, 1000, 1500, 5, 10]),
+                    'type' => fake()->randomElement(['sale_confirmation', 'discount_fixed', 'discount_percent']),
+                    'value' => fake()->randomElement([500, 1000, 1500, 5, 10]),
                     'vertical' => $listing->vertical,
-                    'max_uses' => $this->faker->numberBetween(1, 15),
-                    'used_count' => $this->faker->numberBetween(0, 3),
-                    'expires_at' => now()->addDays($this->faker->numberBetween(15, 120)),
+                    'max_uses' => fake()->numberBetween(1, 15),
+                    'used_count' => fake()->numberBetween(0, 3),
+                    'expires_at' => now()->addDays(fake()->numberBetween(15, 120)),
                     'is_active' => true,
                 ]
             );
@@ -211,9 +206,9 @@ class MarketplaceSchemaSeeder extends Seeder
                     'cashback_rate' => 0.005,
                     'cashback_amount' => round((float) $booking->total_amount * 0.005, 2),
                     'currency' => 'LKR',
-                    'status' => $this->faker->randomElement(['pending', 'approved', 'credited']),
-                    'confirmed_at' => now()->subDays($this->faker->numberBetween(1, 5)),
-                    'credited_at' => $this->faker->boolean(60) ? now()->subDays($this->faker->numberBetween(1, 3)) : null,
+                    'status' => fake()->randomElement(['pending', 'approved', 'credited']),
+                    'confirmed_at' => now()->subDays(fake()->numberBetween(1, 5)),
+                    'credited_at' => fake()->boolean(60) ? now()->subDays(fake()->numberBetween(1, 3)) : null,
                 ]
             );
         }
@@ -222,16 +217,16 @@ class MarketplaceSchemaSeeder extends Seeder
             TaxiRide::query()->create([
                 'customer_id' => $customer->id,
                 'driver_id' => $drivers->isNotEmpty() ? $drivers->random()->id : null,
-                'status' => $this->faker->randomElement(['searching', 'accepted', 'in_progress', 'completed']),
-                'pickup_latitude' => $this->faker->latitude(5.9, 9.9),
-                'pickup_longitude' => $this->faker->longitude(79.6, 81.9),
-                'dropoff_latitude' => $this->faker->latitude(5.9, 9.9),
-                'dropoff_longitude' => $this->faker->longitude(79.6, 81.9),
-                'fare_estimate' => $this->faker->randomFloat(2, 500, 4500),
-                'final_fare' => $this->faker->boolean(60) ? $this->faker->randomFloat(2, 600, 5200) : null,
+                'status' => fake()->randomElement(['searching', 'accepted', 'in_progress', 'completed']),
+                'pickup_latitude' => fake()->latitude(5.9, 9.9),
+                'pickup_longitude' => fake()->longitude(79.6, 81.9),
+                'dropoff_latitude' => fake()->latitude(5.9, 9.9),
+                'dropoff_longitude' => fake()->longitude(79.6, 81.9),
+                'fare_estimate' => fake()->randomFloat(2, 500, 4500),
+                'final_fare' => fake()->boolean(60) ? fake()->randomFloat(2, 600, 5200) : null,
                 'currency' => 'LKR',
-                'started_at' => $this->faker->boolean(65) ? now()->subMinutes($this->faker->numberBetween(30, 360)) : null,
-                'completed_at' => $this->faker->boolean(45) ? now()->subMinutes($this->faker->numberBetween(10, 120)) : null,
+                'started_at' => fake()->boolean(65) ? now()->subMinutes(fake()->numberBetween(30, 360)) : null,
+                'completed_at' => fake()->boolean(45) ? now()->subMinutes(fake()->numberBetween(10, 120)) : null,
             ]);
         }
 
@@ -239,10 +234,10 @@ class MarketplaceSchemaSeeder extends Seeder
             IdempotencyKey::query()->firstOrCreate(
                 ['key' => 'seed-key-' . str_pad((string) $index, 3, '0', STR_PAD_LEFT)],
                 [
-                    'gateway' => $this->faker->randomElement(['payhere', 'stripe', 'manual']),
+                    'gateway' => fake()->randomElement(['payhere', 'stripe', 'manual']),
                     'payload_hash' => hash('sha256', 'seed-payload-' . $index),
-                    'status' => $this->faker->randomElement(['received', 'processing', 'completed']),
-                    'processed_at' => $this->faker->boolean(50) ? now()->subMinutes($this->faker->numberBetween(5, 600)) : null,
+                    'status' => fake()->randomElement(['received', 'processing', 'completed']),
+                    'processed_at' => fake()->boolean(50) ? now()->subMinutes(fake()->numberBetween(5, 600)) : null,
                     'meta' => ['seed' => true, 'index' => $index],
                 ]
             );
@@ -258,7 +253,7 @@ class MarketplaceSchemaSeeder extends Seeder
                 'listing_id' => $booking->listing_id,
                 'sender_id' => $booking->customer_id,
                 'receiver_id' => $listing->provider_id,
-                'message' => $this->faker->sentence(18),
+                'message' => fake()->sentence(18),
                 'is_voice' => false,
                 'original_text' => null,
                 'translated_text' => null,
@@ -271,23 +266,23 @@ class MarketplaceSchemaSeeder extends Seeder
         return match ($vertical) {
             'property' => [
                 'type' => 'property',
-                'sqft' => $this->faker->numberBetween(800, 5200),
-                'beds' => $this->faker->numberBetween(1, 6),
-                'baths' => $this->faker->numberBetween(1, 5),
-                'deed_status' => $this->faker->randomElement(['clear', 'mortgaged', 'pending_transfer']),
+                'sqft' => fake()->numberBetween(800, 5200),
+                'beds' => fake()->numberBetween(1, 6),
+                'baths' => fake()->numberBetween(1, 5),
+                'deed_status' => fake()->randomElement(['clear', 'mortgaged', 'pending_transfer']),
             ],
             'stay' => [
                 'type' => 'stay',
-                'room_type' => $this->faker->randomElement(['single', 'double', 'suite', 'villa']),
+                'room_type' => fake()->randomElement(['single', 'double', 'suite', 'villa']),
                 'amenities_json' => ['wifi', 'pool', 'parking'],
                 'check_in_out_times' => ['check_in' => '14:00', 'check_out' => '11:00'],
             ],
             'vehicle', 'taxi' => [
                 'type' => $vertical,
-                'transmission' => $this->faker->randomElement(['auto', 'manual']),
-                'fuel_type' => $this->faker->randomElement(['petrol', 'diesel', 'hybrid', 'electric']),
-                'daily_rate' => $this->faker->randomFloat(2, 3500, 30000),
-                'with_driver' => $vertical === 'taxi' || $this->faker->boolean(40),
+                'transmission' => fake()->randomElement(['auto', 'manual']),
+                'fuel_type' => fake()->randomElement(['petrol', 'diesel', 'hybrid', 'electric']),
+                'daily_rate' => fake()->randomFloat(2, 3500, 30000),
+                'with_driver' => $vertical === 'taxi' || fake()->boolean(40),
             ],
             'event' => [
                 'type' => 'event',
@@ -305,4 +300,3 @@ class MarketplaceSchemaSeeder extends Seeder
         };
     }
 }
-
